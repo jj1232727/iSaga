@@ -6,7 +6,7 @@ Data = {
     Champions = {
         Irelia = {
             Changelog = "Sion Changelog Here",
-            Version = 2.3.4,
+            Version = "2.3.4",
         },
         Jinx = {
             Changelog = "Jax Initial Release",
