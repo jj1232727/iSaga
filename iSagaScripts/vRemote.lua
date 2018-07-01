@@ -44,6 +44,10 @@ Data = {
             Changelog = "Lucian Initial Release",
             Version = 1.03,
         },
+        LeeSin = {
+            Changelog = "Lee Sin Initial Release",
+            Version = "1.0.0",
+        },
     },
   
 }
