@@ -38,7 +38,7 @@ Data = {
         },
         Zed = {
             Changelog = "Jhin Initial Release",
-            Version = 1.01,
+            Version = "1.02",
         },
         Zoe = {
             Changelog = "Lucian Initial Release",
