@@ -4,10 +4,6 @@ Data = {
     },
 
     Champions = {
-        Camille = {
-            Changelog = "BETA",
-            Version = "1.0.4",
-        },
         Irelia = {
             Changelog = "E Fix",
             Version = "2.7.5",
@@ -16,25 +12,9 @@ Data = {
             Changelog = "W Fix",
             Version = "3.0.0",
         },
-        Kaisa = {
-            Changelog = "No Menu Release",
-            Version = "1.0.0",
-        },
-        Karthus = {
-            Changelog = "Q Fix",
-            Version = "1.3.1",
-        },
         Katarina = {
             Changelog = "Dagger Fix",
             Version = "3.1.0",
-        },
-        KogMaw = {
-            Changelog = "Kog Still new",
-            Version = "1.0.0",
-        },
-        LeeSin = {
-            Changelog = "Lee Sin Initial Release",
-            Version = "1.0.2",
         },
         Orianna = {
             Changelog = "Orianna Auto Usage",
