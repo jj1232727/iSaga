@@ -52,12 +52,16 @@ Data = {
             Changelog = "E Pred",
             Version = "2.6.2",
         },
+        Yasuo = {
+            Changelog = "Release of Yasuo",
+            Version = "1.0.1",
+        },
         Zed = {
             Changelog = "Zed Release",
             Version = "1.0.5",
         },
         Zoe = {
-            Changelog = "Lucian Initial Release",
+            Changelog = "Zoe Initial Release",
             Version = "1.9.0",
         },
     },
