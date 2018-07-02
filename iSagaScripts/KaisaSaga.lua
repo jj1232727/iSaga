@@ -718,7 +718,7 @@ function Flee()
 end 
 
     Saga = MenuElement({type = MENU, id = "Kaisa", name = "Kaisa Personal Script for ShaperShifter", icon = AIOIcon})
-	MenuElement({ id = "blank", type = SPACE ,name = "Version 2.0.0"})
+	MenuElement({ id = "blank", type = SPACE ,name = "Version 1.0.0"})
     Saga:MenuElement({id = "Drawings", name = "Drawings", type = MENU})
     Saga.Drawings:MenuElement({id = "Q", name = "Draw Q range", type = MENU})
     Saga.Drawings.Q:MenuElement({id = "Enabled", name = "Enabled", value = true})       

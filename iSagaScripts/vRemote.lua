@@ -4,49 +4,61 @@ Data = {
     },
 
     Champions = {
+        Camille = {
+            Changelog = "BETA",
+            Version = "1.0.4",
+        },
         Irelia = {
-            Changelog = "Sion Changelog Here",
-            Version = "2.3.4",
+            Changelog = "E Fix",
+            Version = "2.7.5",
         },
         Jinx = {
-            Changelog = "Jax Initial Release",
-            Version = 1,
+            Changelog = "W Fix",
+            Version = "3.0.0",
         },
         Kaisa = {
-            Changelog = "Ashe Initial Release",
-            Version = 1.02,
+            Changelog = "No Menu Release",
+            Version = "1.0.0",
+        },
+        Karthus = {
+            Changelog = "Q Fix",
+            Version = "1.3.1",
         },
         Katarina = {
-            Changelog = "Ezreal Changelog Here",
-            Version = 1.02,
+            Changelog = "Dagger Fix",
+            Version = "3.1.0",
         },
         KogMaw = {
-            Changelog = "Vladimir Changelog Here",
-            Version = 0,
-        },
-        Orianna = {
-            Changelog = "Darius Changelog Here",
-            Version = 0,
-        },
-        Syndra = {
-            Changelog = "Corki Changelog Here",
-            Version = 0,
-        },
-        Viktor = {
-            Changelog = "Twitch Initial Release",
-            Version = 1,
-        },
-        Zed = {
-            Changelog = "Jhin Initial Release",
-            Version = "1.02",
-        },
-        Zoe = {
-            Changelog = "Lucian Initial Release",
-            Version = 1.03,
+            Changelog = "Kog Still new",
+            Version = "1.0.0",
         },
         LeeSin = {
             Changelog = "Lee Sin Initial Release",
+            Version = "1.0.2",
+        },
+        Orianna = {
+            Changelog = "Orianna Auto Usage",
+            Version = "3.2.0",
+        },
+        Syndra = {
+            Changelog = "Prediction Tweaks",
+            Version = "3.2.1",
+        },
+        Talon = {
+            Changelog = "Release",
             Version = "1.0.0",
+        },
+        Viktor = {
+            Changelog = "E Pred",
+            Version = "2.6.2",
+        },
+        Zed = {
+            Changelog = "Zed Release",
+            Version = "1.0.5",
+        },
+        Zoe = {
+            Changelog = "Lucian Initial Release",
+            Version = "1.9.0",
         },
     },
   

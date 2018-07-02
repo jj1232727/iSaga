@@ -1,4 +1,4 @@
-if myHero.charName ~= "LeeSin" then return end
+if myHero.charName ~= "Camille" then return end
 local Camille = myHero
 --local leftside = MapPosition:inLeftBase(myHero.pos)
 local castSpell = {state = 0, tick = GetTickCount(), casting = GetTickCount() - 1000, mouse = mousePos}
@@ -6,6 +6,8 @@ local SagaHeroCount = Game.HeroCount()
 local SagaTimer = Game.Timer
 local Latency = Game.Latency
 local ping = Latency() * .001
+local Qs = { Range = 600 , Radius = 1 ,Speed = 1125}
+local Q2s = { Range = 600 , Radius = 1 ,Speed = 1125}
 local atan2 = math.atan2
 local MathPI = math.pi
 local _movementHistory = {}
@@ -22,8 +24,6 @@ local ItsReadyDumbAss = Game.CanUseSpell
 local CastItDumbFuk = Control.CastSpell
 local _EnemyHeroes
 local TotalHeroes
-local _AllyHero
-local TotalAHeroes
 local LocalCallbackAdd = Callback.Add
 local visionTick = 0
 local _OnVision = {}
@@ -31,34 +31,13 @@ local abs = math.abs
 local deg = math.deg 
 local acos = math.acos 
 local ECheck = 0
-local QCheck = 0
+local isCasting = false
+local isCastingW = 0
+local HKITEM = { [ITEM_1] = 49, [ITEM_2] = 50, [ITEM_3] = 51, [ITEM_4] = 53, [ITEM_5] = 54, [ITEM_6] = 55, [ITEM_7] = 52}
+local QCast = 0
 local ignitecast
 local igniteslot
-local flashslot
-local flashcast
-local smiteslot
-local smitecast
-local wardCasted = 0
-local HKITEM = { [ITEM_1] = 49, [ITEM_2] = 50, [ITEM_3] = 51, [ITEM_4] = 53, [ITEM_5] = 54, [ITEM_6] = 55, [ITEM_7] = 52
-	}
 
-
-    local SmiteTable = {
-        SRU_Baron = "SmiteBaron",
-        SRU_RiftHerald = "SmiteHerald",
-        SRU_Dragon_Water = "SmiteDragonWater",
-        SRU_Dragon_Fire = "SmiteDragonFire",
-        SRU_Dragon_Earth = "SmiteDragonEarth",
-        SRU_Dragon_Air = "SmiteDragonAir",
-        SRU_Dragon_Elder = "SmiteDragonElder",
-        SRU_Blue = "SmiteBlue",
-        SRU_Red = "SmiteRed",
-        SRU_Gromp = "SmiteGromp",
-        SRU_Murkwolf = "SmiteWolves",
-        SRU_Razorbeak = "SmiteRazorbeaks",
-        SRU_Krug = "SmiteKrugs",
-        Sru_Crab = "SmiteCrab",
-    }
 
 require "MapPosition"
 
@@ -460,7 +439,18 @@ local isEvading = ExtLibEvade and ExtLibEvade.Evading
         }
     }
 
-
+checkSpells = function()
+    for i = 1, TotalHeroes do 
+        local unit = _EnemyHeroes[i]
+        if SpellData[unit.charName] then
+            for i, v in pairs(SpellData[unit.charName]) do
+                if v then
+                    table.insert(walllist, i)
+                end
+            end
+        end
+    end
+end
 
 GetDistanceSqr = function(p1, p2)
 		p2 = p2 or Camille
@@ -483,19 +473,6 @@ GetEnemyHeroes = function()
         end
         myCounter = 1
         return #_EnemyHeroes
-    end
-
-    GetAllyHeroes = function()
-        _AllyHero = {}
-        for i = 1, Game.HeroCount() do
-            local unit = Game.Hero(i)
-            if unit.team == TEAM_ALLY  then
-                _AllyHero[myCounter] = unit
-                myCounter = myCounter + 1
-            end
-        end
-        myCounter = 1
-        return #_AllyHero
     end
 
 	GetDistance = function(p1, p2)
@@ -614,7 +591,7 @@ minionCollision = function(target, me, position)
         local minion = SagasBitch(i)
         if minion.isTargetable and minion.team == TEAM_ENEMY and minion.dead == false then
             local linesegment, line, isOnSegment = VectorPointProjectionOnLineSegment(me, position, minion.pos)
-            if linesegment and isOnSegment and (GetDistanceSqr(minion.pos, linesegment) <= (minion.boundingRadius + 100) * (minion.boundingRadius + 100)) then
+            if linesegment and isOnSegment and (GetDistanceSqr(minion.pos, linesegment) <= (minion.boundingRadius + W.Width) * (minion.boundingRadius + W.Width)) then
                 targemyCounter = targemyCounter + 1
             end
         end
@@ -829,25 +806,6 @@ GetEnemiesinRangeCount = function(target,range)
     return #inRadius, inRadius
 end
 
-
-GetAlliesinRangeCount = function(target,range)
-	local inRadius =  {}
-	
-    for i = 1, TotalAHeroes do
-		local unit = _AllyHero[i]
-		if unit.pos ~= nil and validTarget(unit) then
-			if  GetDistance(target.pos, unit.pos) <= range then
-								
-				inRadius[myCounter] = unit
-                myCounter = myCounter + 1
-            end
-        end
-	end
-		myCounter = 1
-    return #inRadius, inRadius
-end
-
-
 GetMinionsinRangeCount = function(target,range)
 	local inRadius =  {}
 	
@@ -866,10 +824,8 @@ end
 
 LocalCallbackAdd("Load", function()
 TotalHeroes = GetEnemyHeroes()
-TotalAHeroes = GetAllyHeroes()
+checkSpells()
 GetIgnite()
-GetSmite()
-GetFlash()
 --leftside = MapPosition:inLeftBase(myHero.pos)
 Saga_Menu()
 
@@ -1019,61 +975,44 @@ end
 
 LocalCallbackAdd("Draw", function()
     if Saga.Drawings.Q.Enabled:Value() then 
-        Draw.Circle(myHero.pos, 1200, 0, Saga.Drawings.Q.Color:Value())
+        Draw.Circle(myHero.pos, 150, 0, Saga.Drawings.Q.Color:Value())
     end
 
     if Saga.Drawings.W.Enabled:Value() then 
-        Draw.Circle(myHero.pos, 700, 0, Saga.Drawings.W.Color:Value())
+        Draw.Circle(myHero.pos, 610, 0, Saga.Drawings.E.Color:Value())
     end
 
     if Saga.Drawings.E.Enabled:Value() then 
-        Draw.Circle(myHero.pos, 350, 0, Saga.Drawings.E.Color:Value())
+        Draw.Circle(myHero.pos, 1600, 0, Saga.Drawings.E.Color:Value())
     end
 
     if Saga.Drawings.R.Enabled:Value() then 
-        Draw.Circle(myHero.pos, 375, 0, Saga.Drawings.R.Color:Value())
+        Draw.Circle(myHero.pos, 475, 0, Saga.Drawings.R.Color:Value())
     end
     
 end)
 
 LocalCallbackAdd("Tick", function()
-
-    
     if Game.Timer() > Saga.Rate.champion:Value() and #_EnemyHeroes == 0 then
         TotalHeroes = GetEnemyHeroes()
-        TotalAHeroes = GetAllyHeroes()
+        checkSpells()
+    for i = 1, TotalHeroes do 
+        local unit = _EnemyHeroes[i]
+        if SpellData[unit.charName] then
+            for x, v in pairs(SpellData[unit.charName]) do
+                if v then
+    Saga.Wset.UseW:MenuElement({id = x, name = "Use W on: "..v['name'], value = true})
+                end
+            end
+        end
+    end
     end
     if #_EnemyHeroes == 0 then return end
 
-    if myHero.dead or Game.IsChatOpen() == true  or isEvading then return end
-    OnVisionF()
-    if Saga.smite.Asm:Value() then
-        AutoSmite()
-    end
-
-    if Saga.insec.insex:Value() then
-    local target = GetTarget(1400)
-        if target then
-            CastInsec(target)
-        end
-    end
-
-    if Saga.Combo.wj:Value() then
-        local items = checkItems()
-        local ward = items[3340] or items[2055] or items[2049] or items[2301] or items[2302] or items[2303] or items[3711]
-        if ward and myHero:GetSpellData(ward).currentCd == 0 and Game.CanUseSpell(1) == 0 then
-            local wardpos = Vector(mousePos)
-                CastSpell(HKITEM[ward],mousePos)
-                CastSpell(HK_W, wardpos,Game.Latency())
-
-        elseif  myHero:GetSpellData(55).currentCd == 0 and Game.CanUseSpell(1) == 0 then
-            local wardpos = Vector(mousePos)
-            CastSpell(HK_ITEM_7,mousePos)
-            Control.CastSpell(HK_W, wardpos)
-
-    end
-    end
+    
+    
   
+    Q1 = myHero.attackData.windUpTime
     if GetOrbMode() == 'Combo' then
         Combo()
     end
@@ -1082,407 +1021,21 @@ LocalCallbackAdd("Tick", function()
         Harass()
     end
 
-    if GetOrbMode() == 'Clear'  then
+    if GetOrbMode() == 'Clear' then
         Clear()
     end
 
 
     end)
 
-leeStacks = function()
-    for i = 1, myHero.buffCount do
-        local buff = myHero:GetBuff(i)
-        if buff then 
-            if buff.count > 0 and buff.name == "blindmonkpassive_cosmetic" then 
-                return buff.count
-            end
-        end
-    end
-    return 0
-end
-
-GapClose1 = function(target)
-    if Game.CanUseSpell(1) == 0 and myHero:GetSpellData(_W).name == "BlindMonkWOne" then
-        local number, mp = GetAlliesinRangeCount(target)
-        local closest = 99999
-        local midp
-        for i = 1, SagaMCount() do 
-            local minion = SagasBitch(i)
-            if minion and not minion.dead and minion.visible and minion.isTargetable and minion.isAlly then
-                if GetDistanceSqr(minion.pos, target.pos) < 700 * 700 and GetDistanceSqr(minion.pos, target.pos) < 700 * 700 and GetDistanceSqr(myHero.pos, minion.pos) < closest * closest  then
-                    closest = GetDistanceSqr(minion.pos, target.pos)
-                    midp = minion
-                end
-            end
-        end
-        for i = 1, number do
-            local ally = mp[i]
-            if ally and not ally.dead and ally.visible and ally.isTargetable then
-                if GetDistanceSqr(ally.pos, target.pos) < 700 * 700 and GetDistanceSqr(ally.pos, target.pos) < 700 * 700 and GetDistanceSqr(myHero.pos, ally.pos) < closest * closest  then
-                    closest = GetDistanceSqr(ally.pos, target.pos)
-                    midp = ally
-                end
-            end
-        end
-        for i = 1, Game.WardCount() do 
-            local ward = Game.Ward(i)
-            if GetDistanceSqr(ward.pos, target.pos) < 700 * 700 and GetDistanceSqr(ward.pos, target.pos) < 700 * 700 and GetDistanceSqr(myHero.pos, ward.pos) < closest * closest  then
-                closest = GetDistanceSqr(ward.pos, target.pos)
-                midp = ward
-            end
-        end
-        return midp
-    end
-end
-
-AutoSmite= function()
-    for i = 1, Game.MinionCount() do 
-        local minion = Game.Minion(i)
-        if minion then
-           if minion.valid and minion.team == 300 and minion.visible and not minion.dead and  minion.pos:DistanceTo() < 1200 then
-                if string.find(minion.charName, "Mini") or string.find(minion.charName, "Test") then return end
-                if myHero:GetSpellData(smiteslot).ammo == 0 then return end
-                if minion.health <= GetDamage(minion, "smite") and Saga.smite.sm[minion.charName]:Value() then
-                    if myHero:GetSpellData(smiteslot).currentCd == 0 and smiteslot and Game.CanUseSpell(smiteslot) == 0 then
-                        Control.CastSpell(smitecast, minion)
-                    end
-                end
-           end
-        end
-    end
-end
 
 Combo = function()
-    
-    target = GetTarget(2000)
-    if target and validTarget(target) then
-        SIGroup(target)
-        local stacks = leeStacks()
-
-    if Saga.Combo.UseR:Value() and GetDamage(target, HK_R) > target.health and Game.CanUseSpell(3) == 0 and GetDistance(myHero,target) < 375 then
-        Control.CastSpell(HK_R, target)
-    end
-
-    if Saga.Combo.UseR:Value() and Saga.Combo.UseQ:Value() and GetDistance(myHero,target) < 375 and GetDamage(target, HK_R) + GetDamage(target, HK_Q) > target.health and Game.CanUseSpell(3) == 0 and Game.CanUseSpell(0) == 0 then
-        Control.CastSpell(HK_R, target)
-        CastQ(target)
-    end
-
-    if smiteslot and smitecast then
-        if Saga.smite.Asm:Value() and Saga.smite.st:Value() and  myHero:GetSpellData(smiteslot).ammo ~= 0 and myHero:GetSpellData(smiteslot).currentCd == 0 and smitecast and smiteslot and Game.CanUseSpell(smiteslot) and target.pos:DistanceTo() < 600 and myHero:GetSpellData(SUMMONER_1).name == 'S5_SummonerSmitePlayerGanker' or 
-        myHero:GetSpellData(smiteslot).name == 'S5_SummonerSmiteDuel' and  myHero:GetSpellData(smiteslot).currentCd == 0 and smitecast and smiteslot and Game.CanUseSpell(smiteslot) and target.pos:DistanceTo() < 600 then
-            Control.CastSpell(smitecast, target)
-        end
-    end
-    if target.pos:DistanceTo() < myHero.range and stacks > 0 then return end
-        if Saga.Combo.UseE:Value() then
-        CastE(target)
-        end
-        if Saga.Combo.UseQ:Value() then
-        CastQ(target)
-        end
-    if Saga.Combo.UseW:Value() and myHero:GetSpellData(_W).name == "BlindMonkWTwo" and Game.CanUseSpell(1) == 0 and not myHero.pathing.isDashing then 
-        Control.CastSpell(HK_W)
-    end
-    local midtarget = GapClose1(target)
-    if midtarget and Saga.Combo.UseW:Value() then
-        if midtarget.pos:DistanceTo() < 700 and midtarget.pos:DistanceTo() > GetDistance(midtarget, target) and Game.CanUseSpell(1) == 0 then
-            local mc = minionCollision(target, myHero.pos,target.pos)
-            if Game.CanUseSpell(0) == 0 and target.pos:DistanceTo() < 1200 and myHero:GetSpellData(_Q).name == "BlindMonkQOne" and mc == 0 then return end
-            if Game.CanUseSpell(0) == 32 or myHero.pathing.isDashing then return end
-            Control.CastSpell(HK_W, midtarget) end 
-        end
-    
-    end
+target  = GetTarget(2000)
+if target then
+    SIGroup(target)
+    CastBurst(target)
 end
-
-Harass = function()
-    target = GetTarget(2000)
-    if target then 
-        local stacks = leeStacks()
-    if target.pos:DistanceTo() < myHero.range and stacks > 0 then return end
-        if Saga.Harass.UseE:Value() then
-            CastE(target)
-        end
-        if Saga.Harass.UseQ:Value() then
-        CastQ(target)
-        end
-    if Saga.Harass.UseW:Value() and myHero:GetSpellData(_W).name == "BlindMonkWOne" and Game.CanUseSpell(1) == 0 and Game.CanUseSpell(0) ~= 0 and Game.CanUseSpell(2) ~= 0 and not myHero.pathing.isDashing then 
-        local items = checkItems()
-        local ward = items[3340] or items[2049] or items[2301] or items[2302] or items[2303] or items[3711]
-        local spot
-            for i = 1, Game.MinionCount() do 
-                local minion = Game.Minion(i)
-                if minion then
-                    if minion.visible and minion.valid and minion.isTargetable and minion.isAlly then
-                        CastSpell(HK_W, minion)
-                    end
-                end
-            end
-        if ward and myHero:GetSpellData(ward).currentCd == 0  then
-            --local spot = myHero.pos + (target.pos - myHero.pos):Normalized() * - 600
-            
-            for i = 1, LocalGameTurretCount() do 
-                local turret = LocalGameTurret(i)
-                if turret and turret.valid and turret.team == myHero.team then
-                    spot = myHero.pos + (turret.pos - myHero.pos):Normalized() * 600
-                end
-            end
-            CastSpell(HK_ITEM_7,spot, Game.Latency())
-            if Game.CanUseSpell(1) == 0 then
-            CastSpell(HK_W, spot,Game.Latency())
-            end
-        end
-    end
-
-    end
 end
-
-Clear = function() 
-    local stacks = leeStacks()
-    
-    for i = 1, Game.MinionCount() do
-		local minion = Game.Minion(i)
-        if minion then
-            if minion.pos:DistanceTo() < myHero.range + 100 and stacks > 0 then return end
-			if minion.pos:DistanceTo() < 1200 and minion.team == 300 - myHero.team and minion.isTargetable and minion.visible and not minion.dead then
-                if Saga.Clear.UseE:Value() then
-                CastE(minion)
-                end
-                if Saga.Clear.UseQ:Value() then
-                CastQM(minion)
-                end
-                
-                if Saga.Clear.UseW:Value() and myHero:GetSpellData(_W).name == "BlindMonkWOne" and Game.CanUseSpell(1) == 0 and GetDistanceSqr(minion,target) < 400 * 400 then 
-                    Control.CastSpell(HK_W, myHero)
-                end
-                if Saga.Clear.UseW:Value() and myHero:GetSpellData(_W).name == "BlindMonkWTwo" and Game.CanUseSpell(1) == 0 then 
-                    Control.CastSpell(HK_W)
-                end
-			end
-            if minion.team == 300 and minion then
-                if minion.pos:DistanceTo() < myHero.range + 100 and stacks > 0 then return end
-                if Saga.Clear.UseE:Value() then
-                    CastE(minion)
-                    end
-                    if Saga.Clear.UseQ:Value() then
-                    CastQM(minion)
-                    end
-    
-                    
-                    if  Saga.Clear.UseQ:Value() and Game.CanUseSpell(0) == 0 and myHero:GetSpellData(_Q).name == "BlindMonkQTwo"  then
-                        if  minion.health > 0 and (minion.charName:lower():find("dragon") or minion.charName:lower():find("baron")) then
-                            if Game.CanUseSpell(0) == 0 and 2 * GetDamage(minion, HK_Q) + GetDamage(minion, "smite") >= minion.health and 1 * GetDamage(minion, HK_Q) + GetDamage(minion, "smite") <= minion.health then
-
-                                return
-                            end
-                        end
-                        Control.CastSpell(HK_Q)
-                        return
-                    end
-
-                    
-
-
-                    if Saga.Clear.UseW:Value() and  myHero:GetSpellData(_W).name == "BlindMonkWOne" and Game.CanUseSpell(1) == 0 and GetDistanceSqr(minion,target) < 400 * 400 then 
-                        Control.CastSpell(HK_W, myHero)
-                    end
-                    if minion.pos:DistanceTo() < myHero.range + 100 and stacks > 0 then return end
-                    if Saga.Clear.UseW:Value() and myHero:GetSpellData(_W).name == "BlindMonkWTwo" and Game.CanUseSpell(1) == 0  then 
-                        Control.CastSpell(HK_W)
-                    end
-            end
-        end
-	end
-end
-
-
-CastE = function(target)
-    local stacks = leeStacks()
-    if os.clock() - ECheck > 1 and Game.CanUseSpell(2) == 0 and target.pos:DistanceTo() < 350 and myHero:GetSpellData(_E).name == "BlindMonkEOne" then
-        if stacks > 0 and target.pos:DistanceTo() < myHero.range then  return end
-        Control.CastSpell(HK_E)
-        ECheck = os.clock()
-    end
-
-
-    if Game.CanUseSpell(2) == 0 and target.pos:DistanceTo() < 350 and myHero:GetSpellData(_E).name == "BlindMonkETwo" then 
-        if stacks > 0 and target.pos:DistanceTo() < myHero.range then return end
-        Control.CastSpell(HK_E)
-    end
-end
-
-CastQ = function(target)
-
-    local stacks = leeStacks()
-
-    if os.clock() - QCheck > 1 and Game.CanUseSpell(0) == 0 and target.pos:DistanceTo() < 1200 and myHero:GetSpellData(_Q).name == "BlindMonkQOne" then
-        if stacks > 0 and target.pos:DistanceTo() < myHero.range then  return end
-        local aim = GetPred(target, 1500, .25)
-            if aim:DistanceTo() > 1200 then
-                aim = myHero.pos + (aim - myHero.pos):Normalized()*1200
-            end
-        local mc = minionCollision(target, myHero.pos,aim)
-        if mc == 0 then
-        
-        
-        CastSpell(HK_Q, aim, 1000)
-        QCheck = os.clock()
-        end
-    end
-    if Game.CanUseSpell(0) == 0 and target.pos:DistanceTo() < 1200 and myHero:GetSpellData(_Q).name == "BlindMonkQTwo" then
-        if stacks > 0 and target.pos:DistanceTo() < myHero.range then  return end
-        Control.CastSpell(HK_Q)
-    end
-end
-
-CastQM = function(target)
-
-    local stacks = leeStacks()
-
-    if os.clock() - QCheck > 1 and Game.CanUseSpell(0) == 0 and target.pos:DistanceTo() < 1200 and myHero:GetSpellData(_Q).name == "BlindMonkQOne" then
-        if stacks > 0 and target.pos:DistanceTo() < myHero.range then  return end
-        
-        
-        CastSpell(HK_Q, target.pos, 1000)
-        QCheck = os.clock()
-    end
-    if Game.CanUseSpell(0) == 0 and target.pos:DistanceTo() < 1200 and myHero:GetSpellData(_Q).name == "BlindMonkQTwo" then
-        if stacks > 0 and target.pos:DistanceTo() < myHero.range then  return end
-        Control.CastSpell(HK_Q)
-    end
-end
-
-CastQ1 = function(target)
-    if os.clock() - QCheck > 1 and Game.CanUseSpell(0) == 0 and target.pos:DistanceTo() < 1200 and myHero:GetSpellData(_Q).name == "BlindMonkQOne" then
-        local aim = GetPred(target, 1500, .25)
-        local mc = minionCollision(target, myHero.pos,aim)
-        if mc == 0 then
-        Control.CastSpell(HK_Q, aim)
-        QCheck = os.clock()
-        end
-    end
-end
-
-function BestPos(target)
-    local bestPos = nil
-    
-        if target then
-                local n,allies = GetAlliesinRangeCount(target,1300)
-                if bestPos == nil then
-                    if #allies > 0 then
-                        local ally = allies[1]
-                        local pos = ally + Vector(target.pos.x - ally.pos.x, 0,  target.pos.z - ally.pos.z):Normalized():Perpendicular() * (ally.range + ally.boundingRadius + myHero.boundingRadius - 10) / 2
-                        bestPos = pos
-                    end
-                end
-
-                for i = 1, LocalGameTurretCount()do
-                    if bestPos == nil then
-                    local turret = LocalGameTurret(i)
-                        if turret and turret.valid then
-                            if GetDistanceSqr(turret, target) - 800 < (turret.range + 200) * (turret.range + 200) then
-                                bestPos = turret.pos 
-                            end
-                        end
-                    end
-                end
-
-                if bestPos == nil then
-                    bestPos = myHero.pos
-                end
-        end
-
-        return bestPos
-
-end
-
-
-
-function DistanceBetween(from, target)
-    if target then
-        return math.min((myHero.boundingRadius + target.boundingRadius + 80) * (20 + 100)/100 or 0, 375)
-    end
-end
-
-function CastR(from, target, to)
-        if Game.CanUseSpell(3) == 0 and from.valid and from and target and to and GetDistanceSqr(from, target) < 375 * 375 and GetDistanceSqr(from, to) > GetDistanceSqr(target, to) then
-            local finalPos = Vector(from) + Vector(target.pos.x - from.pos.x, 0,  target.pos.z - from.pos.z):Normalized() * 800
-
-            local closestAllyToInsec = VectorPointProjectionOnLineSegment(from.pos, finalPos, to)
-
-            if GetDistanceSqr(closestAllyToInsec, to) < 800 * 800 * 0.5 * 0.5 then
-                if myHero:GetSpellData(_Q).name == "BlindMonkQOne" and Game.CanUseSpell(0) == 0 then CastQ(target) end
-                Control.CastSpell(HK_R,target)
-            end
-        end
-end
-
-CastInsec = function(target)
-    
-    local pos = BestPos(target)
-    if target and pos then
-        local to = Vector(target) + Vector(pos.x - target.pos.x, 0, pos.z - target.pos.z):Normalized() * 800
-        local distanceBetween = DistanceBetween(myHero, target)  
-        if Game.CanUseSpell(3) ~= 0 and target.pos:DistanceTo() <= 350 and myHero:GetSpellData(_Q).name ~= "BlindMonkQTwo" and not target.pathing.isDashing then CastE(target) end -- CHeck Q buff
-        if Game.CanUseSpell(0) == 0 and myHero:GetSpellData(_Q).name == "BlindMonkQTwo" and Game.CanUseSpell(3) == 0 and GetDistanceSqr(myHero, target) > (400 * 400) and GetDistanceSqr(myHero, target) < 1200 * 1200 then Control.CastSpell(HK_Q) end
-        if Game.CanUseSpell(0) == 0 and myHero:GetSpellData(_Q).name == "BlindMonkQTwo" and Game.CanUseSpell(3) ~= 0 and GetDistanceSqr(myHero, target) > (400 * 400) and GetDistanceSqr(myHero, target) < 1200 * 1200 then Control.CastSpell(HK_Q) end
-        CastQ1(target)
-        if Game.CanUseSpell(3) == 0 and GetDistanceSqr(myHero, target) < (600 - distanceBetween) * (600 - distanceBetween) and GetDistanceSqr(myHero, to) < GetDistanceSqr(target, to) then
-            local items = checkItems()
-                
-                local ward = items[3340] or items[2049] or items[2301] or items[2302] or items[2303] or items[3711]
-                if flashslot and Game.CanUseSpell(flashslot) == 0 then
-
-                    GapClose(myHero, target, to, "Flash") 
-                elseif myHero:GetSpellData(55).currentCd == 0 and Game.CanUseSpell(1) == 0 then
-  
-                    GapClose(myHero, target, to, "WardJump")
-                end
-        end
-        CastR(myHero, target, to)
-    end
-end
-
-
-
-function GapClose(from, target, to, mode)
-    local distanceBetween = DistanceBetween(myHero, target)
-    local Position = GetPred(target, 1500)
-    --local Position = Vector(target)
-    if Position ~= nil then
-        local items = checkItems()
-        local ward = items[3340] or items[2049] or items[2055]  or items[2301] or items[2302] or items[2303] or items[3711]
-        local GapClosePos = Vector(Position) + Vector(Position.x - to.x, 0,  Position.z - to.z):Normalized() * 600
-        if mode == "Flash" then
-            local GapClosePos = Position + Vector(Position.x - to.x, 0,  Position.z - to.z):Normalized() * (distanceBetween)
-
-            if GetDistanceSqr(GapClosePos, to) > GetDistanceSqr(target, to) and GetDistanceSqr(GapClosePos, Position) >= 80 * 80 and GetDistanceSqr(from, GapClosePos) < 400 * 400 and GetDistanceSqr(from, GapClosePos) > 400/2 * 400/2 then
-
-                CastSpell(flashcast, GapClosePos, 250)
-    
-            end
-        elseif mode == "WardJump" then
-            GapClosePos = Position + Vector(Position.x - to.x, 0,  Position.z - to.z):Normalized() * (distanceBetween)
-            if ward and myHero:GetSpellData(ward).currentCd == 0 and GetDistanceSqr(GapClosePos, to) > GetDistanceSqr(target, to) and GetDistanceSqr(GapClosePos, Position) >= 80 * 80 and GetDistanceSqr(GapClosePos, Position) < (375 - 75) * (375 - 75) and GetDistanceSqr(from, GapClosePos) < 600 * 600 then
-                CastSpell(HKITEM[ward], GapClosePos, Game.Latency())
-                wardCasted = os.clock()
-                if Game.CanUseSpell(1) == 0 then
-                    CastSpell(HK_W, GapClosePos, Game.Latency())
-                end
-            elseif myHero:GetSpellData(55).currentCd == 0 and GetDistanceSqr(GapClosePos, to) > GetDistanceSqr(target, to) and GetDistanceSqr(GapClosePos, Position) >= 80 * 80 and GetDistanceSqr(GapClosePos, Position) < (375 - 75) * (375 - 75) and GetDistanceSqr(from, GapClosePos) < 600 * 600 then 
-                    CastSpell(HK_ITEM_7,GapClosePos, Game.Latency())
-                    wardCasted = os.clock()
-                    if Game.CanUseSpell(1) == 0 then
-                    CastSpell(HK_W, GapClosePos, Game.Latency())
-                    end
-            end
-            
-            
-        end
-    end
-end
-
 
 checkItems = function()
 	local items = {}
@@ -1493,6 +1046,97 @@ checkItems = function()
 		end
 	end
 	return items
+end
+
+CastBurst = function(target)
+    for i=0, 15 do
+        local pos = RotateAroundPoint(myHero.pos + Vector(0,0,800), myHero.pos, math.pi / 8 * i)
+        local segment = LineSegment(Point(myHero.pos), Point(pos))
+        local aim = GetPred(target, 2000, .25 + Game.Latency()/1000)
+        if GetDistance(myHero, aim) > 800 then
+            aim = myHero.pos + (aim- myHero.pos):Normalized() * 800
+        end
+        
+        if MapPosition:intersectsWall(segment) and GetDistanceSqr(aim,pos) < 800 * 800 and target.pos:To2D().onScreen then
+        
+        if Saga.Combo.UseR:Value() and  isCasting == false and Game.CanUseSpell(3) == 0 and Game.CanUseSpell(2) ~= 0 and target.pos:DistanceTo() < 475 and  GetDamage(target) > target.health then
+            Control.CastSpell(HK_R, target)
+        end
+        if Saga.Combo.UseE:Value() and not myHero.pathing.isDashing and os.clock() - isCastingW > 1 and Game.CanUseSpell(2) == 0 and myHero:GetSpellData(_E).name == "CamilleE" and os.clock() - ECheck > 2 then
+            Control.CastSpell(HK_E, pos)
+            ECheck = os.clock()
+            isCasting = true
+            
+        end
+        if Saga.Combo.UseE:Value() and Game.CanUseSpell(2) == 0 and myHero:GetSpellData(_E).name == "CamilleEDash2" and aim then
+            Control.CastSpell(HK_E, aim)
+            isCasting = false
+        end
+
+        if GotBuff(myHero,  "camilleedashtoggle") == 1 or isCasting == false then
+            DisableAttacks(true)
+            DisableMovement(true)
+        end
+
+        if GotBuff(myHero,  "camilleedashtoggle") == 0  or isCasting == false then
+            DisableAttacks(false)
+            DisableMovement(false)
+        end
+
+        end
+        if Saga.Combo.UseW:Value() and isCasting == false and Game.CanUseSpell(1) == 0 and Game.CanUseSpell(2) ~= 0 and target.pos:DistanceTo() < 800 then
+            local aim2 = GetPred(target, 1500, .25 + Game.Latency()/1000)
+            CastSpell(HK_W, aim2)
+            isCastingW = os.clock()
+        end
+
+        if GotBuff(myHero, "camillewconeslashcharge") == 1 then
+            local spot = target:GetPrediction(math.huge, 0.2):Extended(myHero.pos, ((610 + 610)/3) + 100)
+            Control.Move(spot)
+            end
+        
+        if  myHero:GetSpellData(_Q).name == "CamilleQ" and os.clock() - QCast > 2.5 and Saga.Combo.UseQ:Value() and Game.CanUseSpell(0) == 0 and target.pos:DistanceTo() < 300 then
+            Control.CastSpell(HK_Q)
+            ResetAutoAttack()
+            QCast = os.clock()
+        end
+        
+        if  GotBuff(myHero, "camilleqprimingcomplete") == 1 and Saga.Combo.UseQ:Value() and Game.CanUseSpell(0) == 0 and target.pos:DistanceTo() < 300 then
+            Control.CastSpell(HK_Q)
+            ResetAutoAttack()
+        end
+    end
+end
+
+Harass = function()
+    target = GetTarget(1000)
+    if target then
+    if Saga.Harass.UseW:Value() and Game.CanUseSpell(1) == 0 and target.pos:DistanceTo() < 800 then
+        local aim2 = GetPred(target, 1500, .25 + Game.Latency()/1000)
+        CastSpell(HK_W, aim2)
+        isCastingW = os.clock()
+    end
+
+    
+    if Saga.Harass.UseQ:Value() and Game.CanUseSpell(0) == 0 and target.pos:DistanceTo() < 200 then
+        Control.CastSpell(HK_Q)
+        ResetAutoAttack()
+    end
+end
+end
+
+Clear = function()
+    for i = 1, Game.MinionCount() do 
+        local minion = Game.Minion(i)
+        if minion and not minion.dead and minion.visible and minion.isTargetable and minion.isEnemy then
+            if Saga.Clear.UseQ:Value() and GetDistanceSqr(myHero, minion) < 200 * 200 and Game.CanUseSpell(0) == 0 then
+                Control.CastSpell(HK_Q)
+            end
+            if Saga.Clear.UseW:Value() and GetDistanceSqr(myHero, minion) < 700 * 700 and Game.CanUseSpell(1) == 0 then
+                Control.CastSpell(HK_W, minion.pos)
+            end
+        end
+    end
 end
 
 GetIgnite = function()
@@ -1506,36 +1150,6 @@ GetIgnite = function()
     else
         igniteslot = nil
         ignitecast = nil
-    end
-    
-end
-
-GetSmite = function()
-    if myHero:GetSpellData(SUMMONER_2).name:lower() == "summonersmite" or myHero:GetSpellData(SUMMONER_2).name == 'S5_SummonerSmiteDuel' or myHero:GetSpellData(SUMMONER_2).name == 'S5_SummonerSmitePlayerGanker' or myHero:GetSpellData(SUMMONER_2).name == 'S5_SummonerSmiteQuick' or myHero:GetSpellData(SUMMONER_2).name == 'ItemSmiteAoE' then
-        smiteslot = 5
-        smitecast = HK_SUMMONER_2
-
-    elseif myHero:GetSpellData(SUMMONER_1).name:lower() == "summonersmite" or myHero:GetSpellData(SUMMONER_1).name == 'S5_SummonerSmiteDuel' or myHero:GetSpellData(SUMMONER_1).name == 'S5_SummonerSmitePlayerGanker' or myHero:GetSpellData(SUMMONER_1).name == 'S5_SummonerSmiteQuick' or myHero:GetSpellData(SUMMONER_1).name == 'ItemSmiteAoE' then
-        smiteslot = 4
-        smitecast = HK_SUMMONER_1
-    else
-        smiteslot = nil
-        smitecast = nil
-    end
-    
-end
-
-GetFlash = function()
-    if myHero:GetSpellData(SUMMONER_2).name:lower() == "summonerflash" then
-        flashslot = 5
-        flashcast = HK_SUMMONER_2
-
-    elseif myHero:GetSpellData(SUMMONER_1).name:lower() == "summonerflash" then
-        flashslot = 4
-        flashcast = HK_SUMMONER_1
-    else
-        flashslot = nil
-        flashcast = nil
     end
     
 end
@@ -1568,6 +1182,49 @@ SIGroup = function(target)
 	end
 
 end
+
+ComboAA = function(target)
+    local AAdmg = CalcPhysicalDamage(myHero,target,(myHero.totalDamage))
+    if myHero.attackSpeed >= 2.5 then
+        return AAdmg * 5
+    elseif myHero.attackSpeed >= 2 then
+        return AAdmg * 4
+    elseif myHero.attackSpeed >= 1.5 then
+        return AAdmg * 3
+    elseif myHero.attackSpeed >= 1 then
+        return AAdmg * 2
+    else
+        return AAdmg
+    end
+end
+
+GetDamage = function(target) -- Ty Nechrito <3 THAKS <3 
+    
+    local basedamage = myHero.totalDamage
+  
+    if Game.CanUseSpell(3) == 0  then
+        basedamage = CalcPhysicalDamage(myHero,target, ComboAA(target)) + 
+        CalcMagicalDamage(myHero,target, myHero:GetSpellData(_R).level * 5 + 
+        (myHero:GetSpellData(_R).level * .2 + .2) * target.health )
+    end
+  
+    if Game.CanUseSpell(2) == 0 then
+        basedamage = basedamage + CalcPhysicalDamage(myHero,target, (myHero:GetSpellData(_E).level * 45 + 30) + myHero.bonusDamage * .75)
+    end
+
+    if Game.CanUseSpell(1) == 0 then
+        bonusdamage = bonusDamage + CalcPhysicalDamage(myHero,target, (myHero:GetSpellData(_E).level * 30 + 40) + myHero.totalDamage * .60)
+    end
+  
+    if Game.CanUseSpell(0) == 0 then
+        basedamage = basedamage + CalcPhysicalDamage(myHero,target, myHero.totalDamage + 
+        (myHero.totalDamage * (myHero:GetSpellData(_E).level * .5 + .15 ) * myHero.totalDamage))
+        + myHero.totalDamage * (myHero:GetSpellData(_E).level * .5 + .15 ) * myHero.totalDamage
+    end
+  
+    return basedamage
+end
+
 
 CastSpell = function(spell,pos,delay)
     
@@ -1969,31 +1626,26 @@ function CalcPhysicalDamage(source, target, amount)
     end
 
     ResetAutoAttack = function()
+        if _G.SDK and _G.SDK.Orbwalker then
         _G.SDK.Orbwalker:__OnAutoAttackReset()
-    end
-
-
-    GetDamage= function(target, spell)
-    
-    
-  
-    if Game.CanUseSpell(0) == 0 and spell == HK_Q then
-        basedamage = CalcPhysicalDamage(myHero,target, (myHero:GetSpellData(_Q).level* 30 + 25) + (.9 * myHero.bonusDamage))
-    end
-  
-    if Game.CanUseSpell(2) == 0 and spell == HK_E then
-        basedamage = CalcPhysicalDamage(myHero,target, (myHero:GetSpellData(_E).level* 40 + 40) + ( myHero.bonusDamage))
-    end
-  
-    if Game.CanUseSpell(3) == 0 and spell == HK_R then
-        basedamage = CalcPhysicalDamage(myHero,target, (myHero:GetSpellData(_R).level* 225 - 75) + (2 * myHero.totalDamage))
-    end
-    if smiteslot and smitecast then
-        if Game.CanUseSpell(smiteslot) == 0 and spell == "smite" then
-            local SmiteDamage = {390 , 410 , 430 , 450 , 480 , 510 , 540 , 570 , 600 , 640 , 680 , 720 , 760 , 800 , 850 , 900 , 950 , 1000};
-            basedamage = SmiteDamage[myHero.levelData.lvl]
-
         end
+    end
+
+
+    GetDamage= function(target) -- Ty Nechrito <3 THAKS <3 
+    
+    local basedamage = myHero.totalDamage
+  
+    if Game.CanUseSpell(3) == 0  then
+        basedamage = basedamage + CalcPhysicalDamage(myHero,target, (myHero:GetSpellData(_R).level* 100 + 100) + (1.5 * myHero.bonusDamage))
+    end
+  
+    if Game.CanUseSpell(2) == 0 then
+        basedamage = basedamage + CalcPhysicalDamage(myHero,target, (myHero:GetSpellData(_E).level* 10 + 60) + (.20 * myHero.bonusDamage) + (.6 * myHero.ap))
+    end
+  
+    if Game.CanUseSpell(0) == 0 then
+        basedamage = basedamage + CalcPhysicalDamage(myHero,target, (myHero:GetSpellData(_Q).level* 25 - 5) + (myHero.totalDamage)  + myHero.totalDamage)
     end
   
     return basedamage
@@ -2001,56 +1653,38 @@ end
 
 Saga_Menu = 
 function()
-	Saga = MenuElement({type = MENU, id = "Lee Sin", name = "Saga's Lee Sin: Blind Bitch", icon = AIOIcon})
-	MenuElement({ id = "blank", type = SPACE ,name = "Version BETA 1.0.2"})
+	Saga = MenuElement({type = MENU, id = "Camille", name = "Saga's Camille: She will butch your meat", icon = AIOIcon})
+	MenuElement({ id = "blank", type = SPACE ,name = "Version BETA 1.0.4"})
 	--Combo
 	Saga:MenuElement({id = "Combo", name = "Combo", type = MENU})
     Saga.Combo:MenuElement({id = "UseQ", name = "Q", value = true})
-    Saga.Combo:MenuElement({id = "UseE", name = "E", value = true})
     Saga.Combo:MenuElement({id = "UseW", name = "W", value = true})
+	Saga.Combo:MenuElement({id = "UseE", name = "E", value = true})
     Saga.Combo:MenuElement({id = "UseR", name = "R", value = true})
-    Saga.Combo:MenuElement({id = "wj", name = "Ward Jump", key = string.byte("Z")})
-
-    Saga:MenuElement({id = "insec", name = "Insec", type = MENU})
-    Saga.insec:MenuElement({id = "insex", name = "Enable", tooltip = "HOLD KEY DOWN FOR WHOLE COMBO",key = string.byte("T")})
 
 	Saga:MenuElement({id = "Harass", name = "Harass", type = MENU})
     Saga.Harass:MenuElement({id = "UseQ", name = "Q", value = true})
-    Saga.Harass:MenuElement({id = "UseE", name = "E", value = true})
-    Saga.Harass:MenuElement({id = "UseW", name = "Jump Back W/ Ward or Minion", value = true})
-    
+    Saga.Harass:MenuElement({id = "UseW", name = "W", value = true})
 
     
 	Saga:MenuElement({id = "Clear", name = "Clear", type = MENU})
     Saga.Clear:MenuElement({id = "UseQ", name = "Q", value = true})
     Saga.Clear:MenuElement({id = "UseW", name = "W", value = true})
-    Saga.Clear:MenuElement({id = "UseE", name = "E", value = true})
     
 
     
     Saga:MenuElement({id = "Rate", name = "Recache Rate", type = MENU})
 	Saga.Rate:MenuElement({id = "champion", name = "Value", value = 30, min = 1, max = 120, step = 1})
-    
 
-   
-    Saga:MenuElement({id = "smite", name = "Smite Manager", type = MENU})
-    Saga.smite:MenuElement({id = "Asm", name = "Enable", key = string.byte("M"), toggle = true})
-    Saga.smite:MenuElement({id = "sm", name = "Use Smite on: ", value = false, type = MENU})
-    for k, v in pairs(SmiteTable) do
-        if v then
-    Saga.smite.sm:MenuElement({id = k, name = v, value = true})
-        end
-    end
-    Saga.smite:MenuElement({id = "st", name = "Smite Targets", valu = true})
-    
-    
 
-    
+
     Saga:MenuElement({id = "items", name = "UseItems", type = MENU})
 	Saga.items:MenuElement({id = "bg", name = "Use Cutlass/Botrk", value = true})
 	Saga.items:MenuElement({id = "tm", name = "Tiamat/Titcan/Ravenous", value = true})
 	Saga.items:MenuElement({id = "yg", name = "Yoomus GhostBlade", value = true})
 	Saga.items:MenuElement({id = "ig", name = "Ignite", value = true})
+    
+
 
     Saga:MenuElement({id = "Drawings", name = "Drawings", type = MENU})
     Saga.Drawings:MenuElement({id = "Q", name = "Draw Q range", type = MENU})
@@ -2062,6 +1696,7 @@ function()
         Saga.Drawings.W:MenuElement({id = "Enabled", name = "Enabled", value = true})       
         Saga.Drawings.W:MenuElement({id = "Width", name = "Width", value = 1, min = 1, max = 5, step = 1})
         Saga.Drawings.W:MenuElement({id = "Color", name = "Color", color = Draw.Color(200, 255, 255, 255)})
+    
 
     Saga.Drawings:MenuElement({id = "E", name = "Draw Real E range", type = MENU})
     Saga.Drawings.E:MenuElement({id = "Enabled", name = "Enabled", value = false})       

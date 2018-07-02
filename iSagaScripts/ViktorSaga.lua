@@ -761,7 +761,15 @@ end
         
         TotalHeroes = GetEnemyHeroes()
         Saga_Menu()
-        if Game.Timer() > Saga.Rate.champion:Value() then
+
+        if #_EnemyHeroes > 0 then 
+            for i = 1, TotalHeroes do
+                local hero = _EnemyHeroes[i]
+            Saga.KillSteal.rKS:MenuElement({id = hero.charName, name = "Use R on: "..hero.charName, value = true})
+            end 
+        end
+
+        if Game.Timer() > Saga.Rate.champion:Value() and #_EnemyHeroes == 0  then
             for i = 1, TotalHeroes do
                 local hero = _EnemyHeroes[i]
             Saga.KillSteal.rKS:MenuElement({id = hero.charName, name = "Use R on: "..hero.charName, value = true})
@@ -815,7 +823,7 @@ LocalCallbackAdd(
                 ClearJungle()
             end
             if Saga.Lasthit.lasthitActive:Value() then
-                LastHitMode()
+                LastHit()
             end
             
 
@@ -1417,7 +1425,7 @@ end
 Saga_Menu = 
 function()
 	Saga = MenuElement({type = MENU, id = "Viktor", name = "Saga's Viktor: The Fellow Engineer"})
-	MenuElement({ id = "blank", type = SPACE ,name = "Version 2.5.2"})
+	MenuElement({ id = "blank", type = SPACE ,name = "Version 2.6.2"})
 	--Combo
     Saga:MenuElement({id = "Combo", name = "Combo", type = MENU})
     Saga.Combo:MenuElement({id = "UseQ", name = "Q", value = true})

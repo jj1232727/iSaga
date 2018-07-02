@@ -1,7 +1,29 @@
 if myHero.charName ~= 'Zoe' then return end
 
 
-require "MapPosition"
+require "MapPosition"GetPred = function(unit,speed,delay,sourcePosA)
+	local speed = speed or math.huge
+	local delay = delay or 0.25
+	local sourcePos = sourcePosA or myHero.pos
+	local unitSpeed = unit.ms
+	if OnWaypoint(unit).speed > unitSpeed then unitSpeed = OnWaypoint(unit).speed end
+	if OnVision(unit).state == false then
+		local unitPos = unit.pos + Vector(unit.pos,unit.posTo):Normalized() * ((GetTickCount() - OnVision(unit).tick)/1000 * unitSpeed)
+		local predPos = unitPos + Vector(unit.pos,unit.posTo):Normalized() * (unitSpeed * (delay + (GetDistance(sourcePos,unitPos)/speed)))
+		if GetDistance(unit.pos,predPos) > GetDistance(unit.pos,unit.posTo) then predPos = unit.posTo end
+		return predPos
+	else
+		if unitSpeed > unit.ms then
+			local predPos = unit.pos + Vector(OnWaypoint(unit).startPos,unit.posTo):Normalized() * (unitSpeed * (delay + (GetDistance(sourcePos,unit.pos)/speed)))
+			if GetDistance(unit.pos,predPos) > GetDistance(unit.pos,unit.posTo) then predPos = unit.posTo end
+			return predPos
+		elseif IsImmobileTarget(unit) then
+			return unit.pos
+		else
+			return unit:GetPrediction(speed,delay)
+		end
+	end
+end
 
 Latency = Game.Latency
     local pDraw
@@ -637,10 +659,16 @@ function ComboJB()
     local point5
     if target then
         if target.pos:DistanceTo() < E.Range and Saga.Combo.UseE:Value() then
+            
             local CastPosition = GetPred(target,math.huge,Q.Delay + Game.Latency()/1000)
             if Game.CanUseSpell(2) == 0 and minionCollision2(myHero.pos,CastPosition,E) == 0 then
+                
             stuncast = os.clock()  
-            CastSpell(HK_E, CastPosition, Q.Range, Q.Delay) end 
+            if GetDistanceSqr(CastPosition, myHero) > E.Range * E.Range then
+                CastPosition = myHero.pos + (CastPosition - myHero.pos) * E.Range
+            end
+            CastSpell(HK_E, CastPosition, E.Range, E.Delay * 1000) 
+            end 
         end
 
         if GotBuff(target, "zoeesleepcountdownslow") == 1 and os.clock() - stuncast > 1 and Game.CanUseSpell(0) == 0 and Game.CanUseSpell(3) == 0 and target and Saga.Combo.UseR:Value() then
@@ -898,8 +926,11 @@ function JBCombo()
     if target.pos:DistanceTo() < E.Range and Saga.Combo.UseE:Value() then
         CastPosition = GetPred(target,math.huge,Q.Delay + Game.Latency()/1000)
         if Game.CanUseSpell(2) == 0 and minionCollision2(myHero.pos,CastPosition,E) == 0 then
-        stuncast = os.clock()  
-        CastSpell(HK_E, CastPosition, Q.Range, Q.Delay) end 
+        stuncast = os.clock() 
+        if GetDistanceSqr(CastPosition, myHero) > E.Range * E.Range then
+            CastPosition = myHero.pos + (CastPosition - myHero.pos) * 800
+        end
+        Control.CastSpell(HK_E, CastPosition) end 
     end
 end
 
@@ -1034,7 +1065,7 @@ function JBComboH()
             if target.pos:DistanceTo() < E.Range and Saga.Harass.UseE:Value() then
                 CastPosition = GetPred(target,math.huge,Q.Delay + Game.Latency()/1000)
                 if Game.CanUseSpell(2) == 0 and minionCollision2(myHero.pos,CastPosition,E) == 0 then    
-                CastSpell(HK_E, CastPosition, Q.Range, Q.Delay * 1000) 
+                CastSpell(HK_E, CastPosition, E.Range, E.Delay * 1000) 
                 stuncast = os.clock()
                 end 
             end
@@ -1571,7 +1602,7 @@ end
 Saga_Menu =
 function()
 	Saga = MenuElement({type = MENU, id = "Zoe", name = "Saga's Zoe: The Ultimate Jailbait", icon = AIOIcon})
-	MenuElement({ id = "blank", type = SPACE ,name = "Version BETA 1.8.0"})
+	MenuElement({ id = "blank", type = SPACE ,name = "Version BETA 1.9.0"})
 	--Combo
 	Saga:MenuElement({id = "Combo", name = "Combo", type = MENU})
     Saga.Combo:MenuElement({id = "UseQ", name = "Q", value = true})
