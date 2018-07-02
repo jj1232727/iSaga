@@ -1242,7 +1242,10 @@ Killsteal = function ()
                     for q = 1, #daggersList do
                         local dagger = daggersList[q]
 						if enemy and validTarget(enemy) and enemy.health <= GetDamage(HK_E, enemy) + GetDamage("Dagger", enemy) then
-							if GetDistanceSqr(enemy, dagger) < 250 * 250 then
+                            if rActive then 
+                                Control.Move(mousePos)
+                            end
+                            if GetDistanceSqr(enemy, dagger) < 250 * 250 then
 								CastEDagger(enemy)
 							end
 						end
@@ -1288,7 +1291,7 @@ end
 Saga_Menu = 
 function()
 	Saga = MenuElement({type = MENU, id = "Katarina", name = "Saga's Katarina: Shump on These Nuts", icon = AIOIcon})
-	MenuElement({ id = "blank", type = SPACE ,name = "Version 3.1.0"})
+	MenuElement({ id = "blank", type = SPACE ,name = "Version 3.1.1"})
 	--Combo
 	Saga:MenuElement({id = "Combo", name = "Combo", type = MENU})
 	Saga.Combo:MenuElement({id = "UseQ", name = "Q", value = true})

@@ -14,7 +14,7 @@ Data = {
         },
         Katarina = {
             Changelog = "Dagger Fix",
-            Version = "3.1.0",
+            Version = "3.1.1",
         },
         Orianna = {
             Changelog = "Orianna Auto Usage",
@@ -30,7 +30,7 @@ Data = {
         },
         Viktor = {
             Changelog = "E Pred",
-            Version = "2.6.2",
+            Version = "2.6.3",
         },
         Yasuo = {
             Changelog = "Release of Yasuo",
