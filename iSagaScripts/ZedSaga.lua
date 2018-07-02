@@ -6,8 +6,6 @@ require "MapPosition"
 Latency = Game.Latency
 	local ignitecast
 	local igniteslot
-	local flashslot
-	local igniteslot
     local Zoe = myHero
     local ping = Game.Latency()/1000
     local itsReadyBitch = Game.CanUseSpell
@@ -18,7 +16,6 @@ Latency = Game.Latency
 	local E = {range = 290}
 	local R = {range = 625}
 	local visionTick = GetTickCount()
-	
 	local LocalCallbackAdd = Callback.Add
 	local HKITEM = { [ITEM_1] = 49, [ITEM_2] = 50, [ITEM_3] = 51, [ITEM_4] = 52, [ITEM_5] = 53, [ITEM_6] = 54 
 	}
@@ -246,11 +243,17 @@ Latency = Game.Latency
 			local basedamage = ComboAA(target)
 			local qdmgg = 0
 			local rdmgg = 0
+			local edmgg = 0
 			local botrk = BOTRKdmg(target)
 			local passive = Passivedmg(target)
-			if Game.CanUseSpell(0) == 0 and Game.CanUseSpell(3) ~= 0 then 
+			if Game.CanUseSpell(0) == 0 then 
 				qdmgg = QDmg(target)
 			end
+
+			if Game.CanUseSpell(2) == 0 then 
+				edmgg = Edmg(target)
+			end
+
 			if Game.CanUseSpell(3) == 0 then 
 				rdmgg = Rdmg(target)
 			end
@@ -584,8 +587,7 @@ Latency = Game.Latency
 	function()
         Saga_Menu()
         TotalHeroes = GetEnemyHeroes()
-		GetIgnite()
-		GetFlash()
+        GetIgnite()
         
 
 		if _G.EOWLoaded then
@@ -644,21 +646,6 @@ GetIgnite = function()
         ignitecast = HK_SUMMONER_2
 
     elseif myHero:GetSpellData(SUMMONER_1).name:lower() == "summonerdot" then
-        igniteslot = 4
-        ignitecast = HK_SUMMONER_1
-    else
-        igniteslot = nil
-        ignitecast = nil
-    end
-    
-end
-
-GetFlash = function()
-    if myHero:GetSpellData(SUMMONER_2).name:lower() == "summonerflash" then
-        igniteslot = 5
-        ignitecast = HK_SUMMONER_2
-
-    elseif myHero:GetSpellData(SUMMONER_1).name:lower() == "summonerflash" then
         igniteslot = 4
         ignitecast = HK_SUMMONER_1
     else
@@ -885,7 +872,7 @@ OnVisionF = function()
     end
 end
 
-GetPred2 = function(unit,speed,delay,sourcePosA)
+GetPred = function(unit,speed,delay,sourcePosA)
 	local speed = speed or math.huge
 	local delay = delay or 0.25
 	local sourcePos = sourcePosA or myHero.pos
@@ -1006,7 +993,7 @@ Harass = function()
 
 	local target = GetTarget(Q.range + W.range)
 	if target then
-	if myHero.mana < Saga.Harass.mana:Value() * 2 then return end
+	if myHero.mana < Saga.Clear.mana:Value() * 2 then return end
 
 	if  Saga.Harass.UseW:Value() and Game.CanUseSpell(1) == 0 and myHero:GetSpellData(_W).toggleState == 0 then
 		if Game.CanUseSpell(0) ~= 0 and Game.CanUseSpell(2) == 0 then return end
@@ -1095,12 +1082,13 @@ LaneClear = function()
 end
 
 LastHit = function()
-	if myHero.mana < Saga.Lasthit.mana:Value() * 2 then return end
+
+	if myHero.mana < Saga.Clear.mana:Value() * 2 then return end
 	for i = 1, Game.MinionCount() do
 		local minion = Game.Minion(i)
 		if minion then
 			if minion.isEnemy and minion.isTargetable and minion.visible and not minion.dead then
-				if  Saga.Lasthit.UseQ:Value() and Game.CanUseSpell(0) == 0 and QDmg(minion) > minion.health then -- QDMG
+				if  Saga.Lasthit.UseQ:Value() and Game.CanUseSpell(0) == 0 and QDmg(minion) > minion.health then 
 					CastSpell(HK_Q, minion, Q.Range, 250)
 				end
 			end
