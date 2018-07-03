@@ -16,7 +16,7 @@ Data = {
             Changelog = "W Fix",
             Version = "3.0.0",
         },
-        KaiSa = {
+        Kaisa = {
             Changelog = "E Fix",
             Version = "BETA 2.0.0",
         },
