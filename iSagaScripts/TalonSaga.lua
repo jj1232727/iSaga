@@ -1026,11 +1026,13 @@ LocalCallbackAdd("Draw", function()
     
     for i = 1, TotalHeroes do 
         local hero = _EnemyHeroes[i]
-        if hero.health + hero.shieldAD < GetFullCombo(hero) then
-            Draw.Text("KILL NOW", 30, hero.pos2D.x - 50, hero.pos2D.y + 50,Draw.Color(200, 255, 87, 51))				
-		else
-			Draw.Text("Harass Me", 30, hero.pos2D.x - 50, hero.pos2D.y + 50,Draw.Color(200, 255, 87, 51))
-		end
+        if validTarget(hero) then
+            if hero.health + hero.shieldAD < GetFullCombo(hero) then
+                Draw.Text("KILL NOW", 30, hero.pos2D.x - 50, hero.pos2D.y + 50,Draw.Color(200, 255, 87, 51))				
+            else
+                Draw.Text("Harass Me", 30, hero.pos2D.x - 50, hero.pos2D.y + 50,Draw.Color(200, 255, 87, 51))
+            end
+        end
     end
 
 end)
@@ -1066,6 +1068,11 @@ LocalCallbackAdd("Tick", function()
         target = GetTarget(1000)
         if target then
             SIGroup(target)
+
+            if Saga.Combo.UseC:Value() then
+            CastLaneCombo(target)
+            end
+
             if Saga.Combo.UseW:Value() then
                 CastW(target)
             end
@@ -1075,6 +1082,13 @@ LocalCallbackAdd("Tick", function()
             if Saga.Combo.UseR:Value() then
                 CastR(target)
             end
+            if Game.CanUseSpell(3) == 0 and Game.CanUseSpell(1) == 0 and Game.CanUseSpell(0) == 0 and GetDistanceSqr(myHero, target) < 500 * 500 and 
+            GetDamage(target, HK_R) + GetDamage(target,HK_Q) + GetDamage(target, HK_W) > target.health + target.shieldAD then
+                CastW(target)
+                CastQ(target)
+                CastR(target)
+            end
+
         end
     end
 
@@ -1086,10 +1100,19 @@ LocalCallbackAdd("Tick", function()
         end
     end
 
+    CastR2 = function(target)
+        if Game.CanUseSpell(3) == 0 and GetDistanceSqr(myHero, target) < 800 * 800 then
+            Control.CastSpell(HK_R)
+        end
+    end
+
     CastW = function(target) 
         local aim = GetPred(target, 2300, .25 + Game.Latency())
         if Game.CanUseSpell(1) == 0 and GetDistanceSqr(myHero, target) < 650 * 650 then
-            CastSpell(HK_W, aim, 300)
+            if GetDistance(myHero, aim) > 650 then
+                aim = myHero.pos + (aim- myHero.pos):Normalized() * 650
+            end
+            CastSpell(HK_W, aim, 400)
         end
     end
 
@@ -1100,13 +1123,7 @@ LocalCallbackAdd("Tick", function()
     end
 
     CastR = function(target)
-        if Game.CanUseSpell(3) == 0 and GetDistanceSqr(myHero, target) < 500 * 500 and GetDamage(target, HK_R) > target.health + target.shieldAD then
-            Control.CastSpell(HK_R)
-        end
-    end
-
-    CastR2 = function(target)
-        if Game.CanUseSpell(3) == 0 and GetDistanceSqr(myHero, target) < 500 * 500 then
+        if Game.CanUseSpell(3) == 0 and GetDistanceSqr(myHero, target) < 500 * 500 and GetDamage(target, HK_R) > target.health + target.shieldAD  then
             Control.CastSpell(HK_R)
         end
     end
@@ -1663,13 +1680,15 @@ LocalCallbackAdd("Tick", function()
     Saga_Menu = 
     function()
         Saga = MenuElement({type = MENU, id = "Talon", name = "Saga's Talon: Live and Die By the Blade", icon = AIOIcon})
-        MenuElement({ id = "blank", type = SPACE ,name = "Version BETA 1.0.0"})
+        MenuElement({ id = "blank", type = SPACE ,name = "Version BETA 1.1.2"})
         --Combo
         Saga:MenuElement({id = "Combo", name = "Combo", type = MENU})
         Saga.Combo:MenuElement({id = "UseQ", name = "Q", value = true})
         Saga.Combo:MenuElement({id = "UseW", name = "W", value = true})
         Saga.Combo:MenuElement({id = "UseR", name = "R", value = true})
-    
+        Saga.Combo:MenuElement({id = "UseC", name = "Combo1 - Ult First", value = true})
+
+
         Saga:MenuElement({id = "Harass", name = "Harass", type = MENU})
         Saga.Harass:MenuElement({id = "UseQ", name = "Q", value = true})
         Saga.Harass:MenuElement({id = "UseW", name = "W", value = true})

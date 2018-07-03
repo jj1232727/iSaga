@@ -42,7 +42,7 @@ Data = {
         },
         Talon = {
             Changelog = "Release",
-            Version = "1.1.2",
+            Version = "1.1.3",
         },
         Viktor = {
             Changelog = "E Pred",
