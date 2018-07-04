@@ -1105,9 +1105,9 @@ LocalCallbackAdd("Tick", function()
 
             if Game.CanUseSpell(0) == 0 and target.pos:DistanceTo() < 830 then
                 local distance = GetDistance(myHero, target)
-                local aim = GetPred(target, 1400, .25 + Game.Latency())
+                local aim = GetPred(target, 1400, .25)
                 if target.pos:DistanceTo() < 150 then
-                    aim = myHero.pos + (aim- myHero.pos):Normalized() * 800
+                    aim = myHero.pos + (aim- myHero.pos):Normalized() * 830
                 end
                 if Saga.Combo.UseQ:Value() then
                     CastSpell(HK_Q, aim, 500)
@@ -1119,9 +1119,9 @@ LocalCallbackAdd("Tick", function()
                     Control.CastSpell(HK_R, target)
 
                     if myHero.pathing.isDashing then
-                        local aim = GetPred(target, 1400, .25 + Game.Latency())
+                        local aim = GetPred(target, 1400, .25)
                         if target.pos:DistanceTo() < 150 then
-                            aim = myHero.pos + (aim - myHero.pos):Normalized() * 800
+                            aim = myHero.pos + (aim - myHero.pos):Normalized() * 830
                         end
                         if Saga.Combo.UseQ:Value() then
                             CastSpell(HK_Q, aim, 500)
@@ -1267,6 +1267,15 @@ LocalCallbackAdd("Tick", function()
         local items = checkItems()
         if target then
             
+            local pb = items[3152]
+            if Saga.items.pb:Value() and GetDistanceSqr(myHero, target) < 600 * 600 and pb and myHero:GetSpellData(pb).currentCd == 0 then
+                CastSpell(HKITEM[pb], target.pos, 500)
+            end
+            
+            local hg = items[3157]
+            if  Saga.items.hg:Value() and hg and myHero:GetSpellData(hg).currentCd == 0 and Saga.items.zh:Value() >= (100 * myHero.health / myHero.maxHealth) then
+                Control.CastSpell(HKITEM[hg])
+            end
 
             
         
@@ -1710,7 +1719,7 @@ LocalCallbackAdd("Tick", function()
         end
 
         if lich and spell == "lich" then
-            basedamage = CalcMagicalDamage(myHero, target, (0.75* myHero.totalDamage) + .5 * myHero.AP)
+            basedamage = CalcMagicalDamage(myHero, target, (0.75* myHero.totalDamage) + .5 * myHero.ap)
         end
 
         if spell == "passive" then
@@ -1750,10 +1759,10 @@ LocalCallbackAdd("Tick", function()
         
             
         Saga:MenuElement({id = "items", name = "UseItems", type = MENU})
-        Saga.items:MenuElement({id = "bg", name = "Use Cutlass/Botrk", value = true})
-        Saga.items:MenuElement({id = "tm", name = "Tiamat/Titcan/Ravenous", value = true})
-        Saga.items:MenuElement({id = "yg", name = "Yoomus GhostBlade", value = true})
         Saga.items:MenuElement({id = "ig", name = "Ignite", value = true})
+        Saga.items:MenuElement({id = "pb", name = "Use ProtoBelt", value = true})
+        Saga.items:MenuElement({id = "hg", name = "Use Hourglass", value = true})
+        Saga.items:MenuElement({id = "zh", name ="%Health for Zhonya", value = 25, min = 5, max = 90, step = 5})
     
         Saga:MenuElement({id = "Drawings", name = "Drawings", type = MENU})
         Saga.Drawings:MenuElement({id = "Q", name = "Draw Q range", type = MENU})

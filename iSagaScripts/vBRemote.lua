@@ -10,7 +10,7 @@ Data = {
         },
         Diana = {
             Changelog = "Release",
-            Version = "BETA 1.0.0",
+            Version = "BETA 1.0.1",
         },
         Irelia = {
             Changelog = "E Fix",
