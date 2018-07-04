@@ -1732,7 +1732,7 @@ LocalCallbackAdd("Tick", function()
     Saga_Menu = 
     function()
         Saga = MenuElement({type = MENU, id = "Diana", name = "Saga's Diana: Dal-ui Amkae - Korean :)", icon = AIOIcon})
-        MenuElement({ id = "blank", type = SPACE ,name = "Version BETA 1.0.0"})
+        MenuElement({ id = "blank", type = SPACE ,name = "Version BETA 1.0.1"})
         --Combo
         Saga:MenuElement({id = "Combo", name = "Combo", type = MENU})
         Saga.Combo:MenuElement({id = "UseQ", name = "Q", value = true})
