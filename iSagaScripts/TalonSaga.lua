@@ -1046,7 +1046,6 @@ LocalCallbackAdd("Tick", function()
     end
     if #_EnemyHeroes == 0 then return end
 
-    
     OnVisionF()
     KillSteal()
     if GetOrbMode() == 'Combo' then
@@ -1070,8 +1069,12 @@ LocalCallbackAdd("Tick", function()
             SIGroup(target)
 
             if Saga.Combo.UseC:Value() then
-            CastLaneCombo(target)
+                CastLaneCombo(target)
             end
+
+            if Saga.Combo.UseL:Value() then
+                RealTalonCombo(target)
+                end
 
             if Saga.Combo.UseW:Value() then
                 CastW(target)
@@ -1095,7 +1098,15 @@ LocalCallbackAdd("Tick", function()
     CastLaneCombo = function(target)
         if GetDamage(target,HK_W) + GetDamage(target,HK_Q) < target.health then
             CastR2(target)
+            CastW2(target)
+            CastQ(target)
+        end
+    end
+
+    RealTalonCombo = function(target)
+        if GetDamage(target,HK_W) + GetDamage(target,HK_Q) < target.health then
             CastW(target)
+            CastR3(target)
             CastQ(target)
         end
     end
@@ -1106,9 +1117,25 @@ LocalCallbackAdd("Tick", function()
         end
     end
 
+    CastR3 = function(target)
+        if Game.CanUseSpell(3) == 0 and GetDistance(myHero, target) < 575 and Game.CanUseSpell(1) ~= 0 then
+            Control.CastSpell(HK_R)
+        end
+    end
+
     CastW = function(target) 
-        local aim = GetPred(target, 2300, .25 + Game.Latency())
-        if Game.CanUseSpell(1) == 0 and GetDistanceSqr(myHero, target) < 650 * 650 then
+        local aim = GetPred(target, 2300, .25)
+        if Game.CanUseSpell(1) == 0 and GetDistanceSqr(myHero, target) < 650 * 650 and myHero:GetSpellData(_R).name == "TalonR" then
+            if GetDistance(myHero, aim) > 650 then
+                aim = myHero.pos + (aim- myHero.pos):Normalized() * 650
+            end
+            CastSpell(HK_W, aim, 400)
+        end
+    end
+
+    CastW2 = function(target) 
+        local aim = GetPred(target, 2300, .25)
+        if Game.CanUseSpell(1) == 0 and GetDistanceSqr(myHero, target) < 650 * 650 and myHero:GetSpellData(_R).name == "TalonR"then
             if GetDistance(myHero, aim) > 650 then
                 aim = myHero.pos + (aim- myHero.pos):Normalized() * 650
             end
@@ -1121,9 +1148,16 @@ LocalCallbackAdd("Tick", function()
             CastSpell(HK_Q, target)
         end
     end
+    
 
     CastR = function(target)
-        if Game.CanUseSpell(3) == 0 and GetDistanceSqr(myHero, target) < 500 * 500 and GetDamage(target, HK_R) > target.health + target.shieldAD  then
+        if Game.CanUseSpell(3) == 0 and GetDistanceSqr(myHero, target) < 500 * 500 and GetDamage(target, HK_R) > target.health + target.shieldAD and myHero:GetSpellData(_R).name == "TalonR" then
+            Control.CastSpell(HK_R)
+        end
+    end
+
+    CastR3 = function(target)
+        if Game.CanUseSpell(3) == 0 and GetDistanceSqr(myHero, target) < 500 * 500 and myHero:GetSpellData(_R).name == "TalonR" then
             Control.CastSpell(HK_R)
         end
     end
@@ -1680,14 +1714,15 @@ LocalCallbackAdd("Tick", function()
     Saga_Menu = 
     function()
         Saga = MenuElement({type = MENU, id = "Talon", name = "Saga's Talon: Live and Die By the Blade", icon = AIOIcon})
-        MenuElement({ id = "blank", type = SPACE ,name = "Version BETA 1.1.3"})
+        MenuElement({ id = "blank", type = SPACE ,name = "Version BETA 1.2.3"})
         --Combo
         Saga:MenuElement({id = "Combo", name = "Combo", type = MENU})
         Saga.Combo:MenuElement({id = "UseQ", name = "Q", value = true})
         Saga.Combo:MenuElement({id = "UseW", name = "W", value = true})
         Saga.Combo:MenuElement({id = "UseR", name = "R", value = true})
-        Saga.Combo:MenuElement({id = "UseC", name = "Combo1 - Ult First", value = true})
-
+        Saga.Combo:MenuElement({id = "blank2", name = "Only Pick one of these (Prefered)",type = SPACE})
+        Saga.Combo:MenuElement({id = "UseC", name = "Combo1 - Ult First", value = false})
+        Saga.Combo:MenuElement({id = "UseL", name = "Combo2 - Legit Talon Combo", value = true})
 
         Saga:MenuElement({id = "Harass", name = "Harass", type = MENU})
         Saga.Harass:MenuElement({id = "UseQ", name = "Q", value = true})

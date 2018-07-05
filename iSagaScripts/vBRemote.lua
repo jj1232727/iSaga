@@ -45,8 +45,8 @@ Data = {
             Version = "3.2.1",
         },
         Talon = {
-            Changelog = "Death Checks to Void Spam on Death Target",
-            Version = "1.1.4",
+            Changelog = "New Talon Combo",
+            Version = "1.2.3",
         },
         Viktor = {
             Changelog = "E Pred",
