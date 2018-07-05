@@ -1476,14 +1476,17 @@ CastQ = function(target)
     end
 
     if Game.CanUseSpell(0) == 0 and target.pos:DistanceTo() <= 900 and GotBuff(myHero, "YasuoQ3W") == 1 and (Game.Timer() - OnWaypoint(target).time < 0.15 or Game.Timer() - OnWaypoint(target).time > 1.0) then -- is 3 check
-        local aim = GetPred(target,1500, .333 + Game.Latency())  
+        local aim = GetPred(target,1500, .333) 
+        if GetDistance(myHero, aim) > 900 then
+            aim = myHero.pos + (aim- myHero.pos):Normalized() * 800
+        end
         if myHero.pathing.isDashing and target.pos:DistanceTo() <= 375 then
             Control.CastSpell(HK_Q)
         else
             if SagaOrb == 4 then
                 __gsoSpell:CastSpell(HK_Q, aim)
                 else
-                    CastSpell(HK_Q, aim, 360)
+                    CastSpell(HK_Q, aim, 550)
                 end
         end 
     end 
@@ -1519,7 +1522,7 @@ end
 
 getPath = function(focus, minion)
     local pointSegment, pointLine, isOnSegment = VectorPointProjectionOnLineSegment(myHero.pos, focus.pos, minion.pos)
-    if isOnSegment  and GetDistanceSqr(minion.pos, pointSegment) < 300 then
+    if isOnSegment  and GetDistanceSqr(minion.pos, pointSegment) < 500 then
         return true
     end
     return false
@@ -1688,7 +1691,7 @@ end
 Saga_Menu = 
 function()
 	Saga = MenuElement({type = MENU, id = "Yasuo", name = "Saga's Yasuo: Uindo Bitchi", icon = AIOIcon})
-	MenuElement({ id = "blank", type = SPACE ,name = "Version 1.0.1"})
+	MenuElement({ id = "blank", type = SPACE ,name = "Version 1.1.1"})
 	--Combo
 	Saga:MenuElement({id = "Combo", name = "Combo", type = MENU})
     Saga.Combo:MenuElement({id = "UseQ", name = "Q", value = true})
