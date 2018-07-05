@@ -5,12 +5,12 @@ Data = {
 
     Champions = {
         Camille = {
-            Changelog = "E Fix",
-            Version = "BETA 1.0.4",
+            Changelog = "Death Checks to Void Spam on Death Target",
+            Version = "BETA 1.0.5",
         },
         Diana = {
-            Changelog = "Release",
-            Version = "BETA 1.0.1",
+            Changelog = "Death Checks to Void Spam on Death Target",
+            Version = "BETA 1.0.2",
         },
         Irelia = {
             Changelog = "E Fix",
@@ -45,8 +45,8 @@ Data = {
             Version = "3.2.1",
         },
         Talon = {
-            Changelog = "Release",
-            Version = "1.1.3",
+            Changelog = "Death Checks to Void Spam on Death Target",
+            Version = "1.1.4",
         },
         Viktor = {
             Changelog = "E Pred",

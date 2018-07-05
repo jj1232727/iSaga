@@ -1066,7 +1066,7 @@ LocalCallbackAdd("Tick", function()
 
     Combo = function()
         target = GetTarget(1000)
-        if target then
+        if target and validTarget(target)then
             SIGroup(target)
 
             if Saga.Combo.UseC:Value() then
@@ -1680,7 +1680,7 @@ LocalCallbackAdd("Tick", function()
     Saga_Menu = 
     function()
         Saga = MenuElement({type = MENU, id = "Talon", name = "Saga's Talon: Live and Die By the Blade", icon = AIOIcon})
-        MenuElement({ id = "blank", type = SPACE ,name = "Version BETA 1.1.2"})
+        MenuElement({ id = "blank", type = SPACE ,name = "Version BETA 1.1.3"})
         --Combo
         Saga:MenuElement({id = "Combo", name = "Combo", type = MENU})
         Saga.Combo:MenuElement({id = "UseQ", name = "Q", value = true})

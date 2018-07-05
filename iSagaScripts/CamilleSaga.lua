@@ -1031,7 +1031,7 @@ LocalCallbackAdd("Tick", function()
 
 Combo = function()
 target  = GetTarget(2000)
-if target then
+if target and validTarget(target)then
     SIGroup(target)
     CastBurst(target)
 end
@@ -1110,7 +1110,7 @@ end
 
 Harass = function()
     target = GetTarget(1000)
-    if target then
+    if target and validTarget(target) then
     if Saga.Harass.UseW:Value() and Game.CanUseSpell(1) == 0 and target.pos:DistanceTo() < 800 then
         local aim2 = GetPred(target, 1500, .25 + Game.Latency()/1000)
         CastSpell(HK_W, aim2)
@@ -1654,7 +1654,7 @@ end
 Saga_Menu = 
 function()
 	Saga = MenuElement({type = MENU, id = "Camille", name = "Saga's Camille: She will butch your meat", icon = AIOIcon})
-	MenuElement({ id = "blank", type = SPACE ,name = "Version BETA 1.0.4"})
+	MenuElement({ id = "blank", type = SPACE ,name = "Version BETA 1.0.5"})
 	--Combo
 	Saga:MenuElement({id = "Combo", name = "Combo", type = MENU})
     Saga.Combo:MenuElement({id = "UseQ", name = "Q", value = true})

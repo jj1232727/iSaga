@@ -1089,7 +1089,7 @@ LocalCallbackAdd("Tick", function()
 
     Combo = function()
         target = GetTarget(1500)
-        if target then
+        if target and validTarget(target) then
             SIGroup(target)
             if  Game.CanUseSpell(3) == 0 and target.pos:DistanceTo() < 875 and GotBuff(target,"dianamoonlight") == 1 then
                 if Saga.Combo.UseR:Value() then
@@ -1732,7 +1732,7 @@ LocalCallbackAdd("Tick", function()
     Saga_Menu = 
     function()
         Saga = MenuElement({type = MENU, id = "Diana", name = "Saga's Diana: Dal-ui Amkae - Korean :)", icon = AIOIcon})
-        MenuElement({ id = "blank", type = SPACE ,name = "Version BETA 1.0.1"})
+        MenuElement({ id = "blank", type = SPACE ,name = "Version BETA 1.0.2"})
         --Combo
         Saga:MenuElement({id = "Combo", name = "Combo", type = MENU})
         Saga.Combo:MenuElement({id = "UseQ", name = "Q", value = true})
