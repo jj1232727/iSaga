@@ -9,8 +9,8 @@ Data = {
             Version = "BETA 1.0.5",
         },
         Diana = {
-            Changelog = "Death Checks to Void Spam on Death Target",
-            Version = "BETA 1.0.2",
+            Changelog = "Added Q Buff Before using R",
+            Version = "BETA 1.1.0",
         },
         Irelia = {
             Changelog = "E Fix",

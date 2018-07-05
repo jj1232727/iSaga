@@ -1049,6 +1049,8 @@ LocalCallbackAdd("Tick", function()
     
     OnVisionF()
 
+    Killsteal()
+
     if GetOrbMode() == 'Combo' then
         
         Combo()
@@ -1087,23 +1089,62 @@ LocalCallbackAdd("Tick", function()
     
     end
 
+    Killsteal = function()
+        target = GetTarget(825)
+        if target and validTarget(target) then
+            if Saga.KillSteal.UseR:Value() and GetDamage(target, HK_R) > target.health and Game.CanUseSpell(3) == 0 and target.pos:DistanceTo() < 825 then 
+                Control.CastSpell(HK_R, target)
+            end
+
+            if  Saga.KillSteal.UseQ:Value() and GetDamage(target, HK_Q) > target.health and Game.CanUseSpell(0) == 0 and target.pos:DistanceTo() < 900 then
+                local distance = GetDistance(myHero, target)
+                local aim = GetPred(target, 1400, .25)
+                
+                if target.pos:DistanceTo() < 150 then
+                    aim = myHero.pos + (aim- myHero.pos):Normalized() * 900
+                end
+                    CastSpell(HK_Q, aim, 500)
+            end
+        end
+    end
+
     Combo = function()
         target = GetTarget(1500)
         if target and validTarget(target) then
             SIGroup(target)
-            if  Game.CanUseSpell(3) == 0 and target.pos:DistanceTo() < 875 and GotBuff(target,"dianamoonlight") == 1 then
+            if  Game.CanUseSpell(3) == 0 and target.pos:DistanceTo() < 825 and GotBuff(target,"dianamoonlight") == 1 then
                 if Saga.Combo.UseR:Value() then
                 Control.CastSpell(HK_R, target)
                 end
             end
 
-            if  Game.CanUseSpell(3) == 0 and target.pos:DistanceTo() < 875 then
+            if  Game.CanUseSpell(0) == 0 and target.pos:DistanceTo() < 900 and Saga.Combo.qo:Value() then
+                local distance = GetDistance(myHero, target)
+                local aim = GetPred(target, 1400, .25)
+                
+                if target.pos:DistanceTo() < 150 then
+                    aim = myHero.pos + (aim- myHero.pos):Normalized() * 900
+                end
+                if Saga.Combo.UseQ:Value() then
+                    CastSpell(HK_Q, aim, 500)
+                end
+            end
+
+            if  Game.CanUseSpell(3) == 0 and target.pos:DistanceTo() < 825 and Game.CanUseSpell(0) ~= 0 and Game.CanUseSpell(1) ~= 0 and Game.CanUseSpell(2) ~= 0 and Saga.Combo.qo:Value() then
                 if Saga.Combo.UseR:Value() then
                     Control.CastSpell(HK_R, target)
                 end
             end
 
-            if Game.CanUseSpell(0) == 0 and target.pos:DistanceTo() < 830 then
+            if  Game.CanUseSpell(3) == 0 and target.pos:DistanceTo() < 825 then
+                if Saga.Combo.UseR:Value() and not Saga.Combo.qo:Value() then
+                    Control.CastSpell(HK_R, target)
+                end
+            end
+
+            
+
+            if Game.CanUseSpell(0) == 0 and target.pos:DistanceTo() < 900 then
                 local distance = GetDistance(myHero, target)
                 local aim = GetPred(target, 1400, .25)
                 if target.pos:DistanceTo() < 150 then
@@ -1116,6 +1157,7 @@ LocalCallbackAdd("Tick", function()
 
             if Game.CanUseSpell(3) == 0 then
                 if Game.CanUseSpell(0) == 0 and Game.CanUseSpell(1) == 0 and target.pos:DistanceTo() < 900 and GetFullCombo(target) + GetDamage(target,"sheen") + GetDamage(target,"lich") > target.health + target.shieldAD + target.shieldAP then 
+                    
                     Control.CastSpell(HK_R, target)
 
                     if myHero.pathing.isDashing then
@@ -1732,7 +1774,7 @@ LocalCallbackAdd("Tick", function()
     Saga_Menu = 
     function()
         Saga = MenuElement({type = MENU, id = "Diana", name = "Saga's Diana: Dal-ui Amkae - Korean :)", icon = AIOIcon})
-        MenuElement({ id = "blank", type = SPACE ,name = "Version BETA 1.0.2"})
+        MenuElement({ id = "blank", type = SPACE ,name = "Version BETA 1.1.0"})
         --Combo
         Saga:MenuElement({id = "Combo", name = "Combo", type = MENU})
         Saga.Combo:MenuElement({id = "UseQ", name = "Q", value = true})
@@ -1740,6 +1782,7 @@ LocalCallbackAdd("Tick", function()
         Saga.Combo:MenuElement({id = "UseE", name = "E", value = true})
         Saga.Combo:MenuElement({id = "UseR", name = "R", value = true})
         Saga.Combo:MenuElement({id = "gap", name = "GapClose", value = true})
+        Saga.Combo:MenuElement({id = "qo", name = "R Only If Target Has Debuff", value = false})
 
 
         Saga:MenuElement({id = "Harass", name = "Harass", type = MENU})
@@ -1751,8 +1794,10 @@ LocalCallbackAdd("Tick", function()
         Saga:MenuElement({id = "Clear", name = "Clear", type = MENU})
         Saga.Clear:MenuElement({id = "UseQ", name = "Q", value = true})
         Saga.Clear:MenuElement({id = "UseW", name = "W", value = true})
-        
-    
+
+        Saga:MenuElement({id = "KillSteal", name = "KillSteal", type = MENU})
+        Saga.KillSteal:MenuElement({id = "UseQ", name = "Q", value = true})
+        Saga.KillSteal:MenuElement({id = "UseR", name = "R", value = true})
         
         Saga:MenuElement({id = "Rate", name = "Recache Rate", type = MENU})
         Saga.Rate:MenuElement({id = "champion", name = "Value", value = 30, min = 1, max = 120, step = 1})
