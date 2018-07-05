@@ -1220,7 +1220,7 @@ LocalCallbackAdd("Tick", function()
         if target then
             if Game.CanUseSpell(0) == 0 and target.pos:DistanceTo() < 830 then
                 local distance = GetDistance(myHero, target)
-                local aim = GetPred(target, 1400, .25 + Game.Latency())
+                local aim = GetPred(target, 1400, .25)
                 if target.pos:DistanceTo() < 150 then
                     aim = myHero.pos + (aim- myHero.pos):Normalized() * 800
                 end
@@ -1774,7 +1774,7 @@ LocalCallbackAdd("Tick", function()
     Saga_Menu = 
     function()
         Saga = MenuElement({type = MENU, id = "Diana", name = "Saga's Diana: Dal-ui Amkae - Korean :)", icon = AIOIcon})
-        MenuElement({ id = "blank", type = SPACE ,name = "Version BETA 1.1.0"})
+        MenuElement({ id = "blank", type = SPACE ,name = "Version BETA 1.1.1"})
         --Combo
         Saga:MenuElement({id = "Combo", name = "Combo", type = MENU})
         Saga.Combo:MenuElement({id = "UseQ", name = "Q", value = true})

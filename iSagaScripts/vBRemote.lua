@@ -10,7 +10,7 @@ Data = {
         },
         Diana = {
             Changelog = "Added Q Buff Before using R",
-            Version = "BETA 1.1.0",
+            Version = "BETA 1.1.1",
         },
         Irelia = {
             Changelog = "E Fix",
