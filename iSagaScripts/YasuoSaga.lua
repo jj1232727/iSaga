@@ -1486,7 +1486,7 @@ CastQ = function(target)
             if SagaOrb == 4 then
                 __gsoSpell:CastSpell(HK_Q, aim)
                 else
-                    CastSpell(HK_Q, aim, 550)
+                    CastSpell(HK_Q, aim, 400)
                 end
         end 
     end 
@@ -1510,10 +1510,10 @@ function UnderTurret(pos)
 end
 
 CastE = function(target)
-    if Saga.Combo.UseE:Value() and target.pos:DistanceTo() <= 475 and target.pos:DistanceTo() >= 150 and Game.CanUseSpell(2) == 0 and GotBuff(target, "YasuoDashWrapper") == 0 and not UnderTurret(DashEndPos(target)) then  
+    if Saga.Combo.UseE:Value() and target.pos:DistanceTo() >= 150 and target.pos:DistanceTo() <= 475 and Game.CanUseSpell(2) == 0 and GotBuff(target, "YasuoDashWrapper") == 0 and not UnderTurret(DashEndPos(target)) then  
         Control.CastSpell(HK_E, target)
     else
-        if Saga.Combo.UseE:Value() and GotBuff(target, "YasuoDashWrapper") == 0 and target.pos:DistanceTo() <= 475 and target.pos:DistanceTo() >= 150 and GetDamage(target) > (target.health + target.shieldAD + target.shieldAP) and Game.CanUseSpell(2) == 0  then
+        if Saga.Combo.UseE:Value() and target.pos:DistanceTo() >= 150 and GotBuff(target, "YasuoDashWrapper") == 0 and target.pos:DistanceTo() <= 475 and GetDamage(target) > (target.health + target.shieldAD + target.shieldAP) and Game.CanUseSpell(2) == 0  then
             Control.CastSpell(HK_E, target)
         end
         
@@ -1522,7 +1522,7 @@ end
 
 getPath = function(focus, minion)
     local pointSegment, pointLine, isOnSegment = VectorPointProjectionOnLineSegment(myHero.pos, focus.pos, minion.pos)
-    if isOnSegment  and GetDistanceSqr(minion.pos, pointSegment) < 500 then
+    if isOnSegment  and GetDistanceSqr(minion.pos, pointSegment) < 800 then
         return true
     end
     return false
@@ -1612,6 +1612,14 @@ Combo =  function()
     end
     if target and validTarget(target) then
         SIGroup(target)
+
+        if Saga.Combo.UseE:Value() and GotBuff(myHero, "YasuoQ3W") == 1 and GotBuff(target, "YasuoDashWrapper") == 0 and target.pos:DistanceTo() >= 150 and target.pos:DistanceTo() <= 475 and Game.CanUseSpell(2) == 0 and Game.CanUseSpell(0) == 0 then
+            CastSpell(HK_E, target)
+            if myHero.pathing.isDashing then
+                CastSpell(HK_Q, target)
+            end
+        end
+
         if Saga.Combo.UseQ:Value() then
         CastQ(target)
         end 
@@ -1691,7 +1699,7 @@ end
 Saga_Menu = 
 function()
 	Saga = MenuElement({type = MENU, id = "Yasuo", name = "Saga's Yasuo: Uindo Bitchi", icon = AIOIcon})
-	MenuElement({ id = "blank", type = SPACE ,name = "Version 1.1.1"})
+	MenuElement({ id = "blank", type = SPACE ,name = "Version 1.2.1"})
 	--Combo
 	Saga:MenuElement({id = "Combo", name = "Combo", type = MENU})
     Saga.Combo:MenuElement({id = "UseQ", name = "Q", value = true})

@@ -54,7 +54,7 @@ Data = {
         },
         Yasuo = {
             Changelog = "Release of Yasuo",
-            Version = "1.1.1",
+            Version = "1.2.1",
         },
         Zed = {
             Changelog = "Zed Release",
