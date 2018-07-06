@@ -32,7 +32,7 @@ Data = {
             Changelog = "Dagger Fix",
             Version = "3.1.1",
         },
-        Katarina = {
+        KogMaw = {
             Changelog = "Beta Release",
             Version = "BETA 1.0.0",
         },
