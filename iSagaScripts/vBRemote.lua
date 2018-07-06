@@ -32,6 +32,10 @@ Data = {
             Changelog = "Dagger Fix",
             Version = "3.1.1",
         },
+        Katarina = {
+            Changelog = "Beta Release",
+            Version = "BETA 1.0.0",
+        },
         LeeSin = {
             Changelog = "Lee ON Beta",
             Version = "BETA 1.0.2",
