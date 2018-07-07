@@ -1158,13 +1158,12 @@ Combo = function()
     if target and validTarget(target) then
         SIGroup(target)
         local stacks = leeStacks()
-        
     if Saga.Combo.UseR:Value() and GetDamage(target, HK_R) > target.health and Game.CanUseSpell(3) == 0 and GetDistance(myHero,target) < 375 then
         Control.CastSpell(HK_R, target)
     end
 
     
-    if Saga.Combo.UseR:Value() and Saga.Combo.UseQ:Value() and GetDistance(myHero,target) < 375 and GetDamage(target, HK_R) + GetDamage(target, HK_Q) > target.health and Game.CanUseSpell(3) == 0 and Game.CanUseSpell(0) == 0 then
+    if myHero.mana > 80 and Saga.Combo.UseR:Value() and Saga.Combo.UseQ:Value() and GetDistance(myHero,target) < 375 and GetDamage(target, HK_R) + GetDamage(target, HK_Q) > target.health and Game.CanUseSpell(3) == 0 and Game.CanUseSpell(0) == 0 then
         Control.CastSpell(HK_R, target)
         CastQ(target)
     end
@@ -2008,7 +2007,7 @@ end
 Saga_Menu = 
 function()
 	Saga = MenuElement({type = MENU, id = "Lee Sin", name = "Saga's Lee Sin: Blind Bitch", icon = AIOIcon})
-	MenuElement({ id = "blank", type = SPACE ,name = "Version BETA 1.1.3"})
+	MenuElement({ id = "blank", type = SPACE ,name = "Version BETA 1.1.4"})
 	--Combo
 	Saga:MenuElement({id = "Combo", name = "Combo", type = MENU})
     Saga.Combo:MenuElement({id = "UseQ", name = "Q", value = true})
