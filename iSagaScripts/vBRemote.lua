@@ -26,7 +26,7 @@ Data = {
         },
         Karthus = {
             Changelog = "E Fix",
-            Version = "BETA 1.3.1",
+            Version = "1.3.1",
         },
         Katarina = {
             Changelog = "Dagger Fix",
@@ -37,8 +37,8 @@ Data = {
             Version = "BETA 1.0.0",
         },
         LeeSin = {
-            Changelog = "Lee ON Beta",
-            Version = "BETA 1.0.2",
+            Changelog = "Fixed Ult Damage",
+            Version = "1.1.2",
         },
         Orianna = {
             Changelog = "Orianna Auto Usage",

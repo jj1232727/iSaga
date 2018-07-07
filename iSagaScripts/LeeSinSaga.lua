@@ -1158,11 +1158,12 @@ Combo = function()
     if target and validTarget(target) then
         SIGroup(target)
         local stacks = leeStacks()
-
+        
     if Saga.Combo.UseR:Value() and GetDamage(target, HK_R) > target.health and Game.CanUseSpell(3) == 0 and GetDistance(myHero,target) < 375 then
         Control.CastSpell(HK_R, target)
     end
 
+    
     if Saga.Combo.UseR:Value() and Saga.Combo.UseQ:Value() and GetDistance(myHero,target) < 375 and GetDamage(target, HK_R) + GetDamage(target, HK_Q) > target.health and Game.CanUseSpell(3) == 0 and Game.CanUseSpell(0) == 0 then
         Control.CastSpell(HK_R, target)
         CastQ(target)
@@ -1273,12 +1274,12 @@ Clear = function()
                     if  Saga.Clear.UseQ:Value() and Game.CanUseSpell(0) == 0 and myHero:GetSpellData(_Q).name == "BlindMonkQTwo"  then
                         if  minion.health > 0 and (minion.charName:lower():find("dragon") or minion.charName:lower():find("baron")) then
                             if Game.CanUseSpell(0) == 0 and 2 * GetDamage(minion, HK_Q) + GetDamage(minion, "smite") >= minion.health and 1 * GetDamage(minion, HK_Q) + GetDamage(minion, "smite") <= minion.health then
-
                                 return
+                            else
+                                Control.CastSpell(HK_Q)
                             end
                         end
-                        Control.CastSpell(HK_Q)
-                        return
+                        
                     end
 
                     
@@ -1974,27 +1975,28 @@ function CalcPhysicalDamage(source, target, amount)
 
 
     GetDamage= function(target, spell)
+        local basedamage = 0
+        
     
-    
-  
-    if Game.CanUseSpell(0) == 0 and spell == HK_Q then
-        basedamage = CalcPhysicalDamage(myHero,target, (myHero:GetSpellData(_Q).level* 30 + 25) + (.9 * myHero.bonusDamage))
-    end
-  
-    if Game.CanUseSpell(2) == 0 and spell == HK_E then
-        basedamage = CalcPhysicalDamage(myHero,target, (myHero:GetSpellData(_E).level* 40 + 40) + ( myHero.bonusDamage))
-    end
-  
-    if Game.CanUseSpell(3) == 0 and spell == HK_R then
-        basedamage = CalcPhysicalDamage(myHero,target, (myHero:GetSpellData(_R).level* 225 - 75) + (2 * myHero.totalDamage))
-    end
-    if smiteslot and smitecast then
-        if Game.CanUseSpell(smiteslot) == 0 and spell == "smite" then
-            local SmiteDamage = {390 , 410 , 430 , 450 , 480 , 510 , 540 , 570 , 600 , 640 , 680 , 720 , 760 , 800 , 850 , 900 , 950 , 1000};
-            basedamage = SmiteDamage[myHero.levelData.lvl]
-
+        if Game.CanUseSpell(0) == 0 and spell == HK_Q then
+            basedamage = CalcPhysicalDamage(myHero,target, (myHero:GetSpellData(_Q).level* 30 + 25) + (.9 * myHero.bonusDamage))
         end
-    end
+    
+        if Game.CanUseSpell(2) == 0 and spell == HK_E then
+            basedamage = CalcPhysicalDamage(myHero,target, (myHero:GetSpellData(_E).level* 40 + 40) + ( myHero.bonusDamage))
+        end
+    
+        if Game.CanUseSpell(3) == 0 and spell == HK_R then
+            basedamage = CalcPhysicalDamage(myHero,target, (myHero:GetSpellData(_R).level * 225 - 75) + (2 * myHero.totalDamage))
+            --print(basedamage)
+        end
+        if smiteslot and smitecast then
+            if Game.CanUseSpell(smiteslot) == 0 and spell == "smite" then
+                local SmiteDamage = {390 , 410 , 430 , 450 , 480 , 510 , 540 , 570 , 600 , 640 , 680 , 720 , 760 , 800 , 850 , 900 , 950 , 1000};
+                basedamage = SmiteDamage[myHero.levelData.lvl]
+
+            end
+        end
   
     return basedamage
 end
@@ -2002,7 +2004,7 @@ end
 Saga_Menu = 
 function()
 	Saga = MenuElement({type = MENU, id = "Lee Sin", name = "Saga's Lee Sin: Blind Bitch", icon = AIOIcon})
-	MenuElement({ id = "blank", type = SPACE ,name = "Version BETA 1.0.2"})
+	MenuElement({ id = "blank", type = SPACE ,name = "Version BETA 1.1.2"})
 	--Combo
 	Saga:MenuElement({id = "Combo", name = "Combo", type = MENU})
     Saga.Combo:MenuElement({id = "UseQ", name = "Q", value = true})
