@@ -614,7 +614,7 @@ minionCollision = function(target, me, position)
         local minion = SagasBitch(i)
         if minion.isTargetable and minion.team == TEAM_ENEMY and minion.dead == false then
             local linesegment, line, isOnSegment = VectorPointProjectionOnLineSegment(me, position, minion.pos)
-            if linesegment and isOnSegment and (GetDistanceSqr(minion.pos, linesegment) <= (minion.boundingRadius + 100) * (minion.boundingRadius + 100)) then
+            if linesegment and isOnSegment and (GetDistanceSqr(minion.pos, linesegment) <= (minion.boundingRadius + 70) * (minion.boundingRadius + 70)) then
                 targemyCounter = targemyCounter + 1
             end
         end
@@ -1317,11 +1317,11 @@ CastQ = function(target)
 
     local stacks = leeStacks()
 
-    if os.clock() - QCheck > 1 and Game.CanUseSpell(0) == 0 and target.pos:DistanceTo() < 1200 and myHero:GetSpellData(_Q).name == "BlindMonkQOne" then
+    if os.clock() - QCheck > 1 and Game.CanUseSpell(0) == 0 and target.pos:DistanceTo() < 1100 and myHero:GetSpellData(_Q).name == "BlindMonkQOne" then
         if stacks > 0 and target.pos:DistanceTo() < myHero.range then  return end
-        local aim = GetPred(target, 1500, .25)
+        local aim = GetPred(target, 1800, .25)
             if aim:DistanceTo() > 1200 then
-                aim = myHero.pos + (aim - myHero.pos):Normalized()*1200
+                aim = myHero.pos + (aim - myHero.pos):Normalized() * 1100
             end
         local mc = minionCollision(target, myHero.pos,aim)
         if mc == 0 then
@@ -1331,7 +1331,7 @@ CastQ = function(target)
         QCheck = os.clock()
         end
     end
-    if Game.CanUseSpell(0) == 0 and target.pos:DistanceTo() < 1200 and myHero:GetSpellData(_Q).name == "BlindMonkQTwo" then
+    if Game.CanUseSpell(0) == 0 and target.pos:DistanceTo() < 1100 and myHero:GetSpellData(_Q).name == "BlindMonkQTwo" then
         if stacks > 0 and target.pos:DistanceTo() < myHero.range then  return end
         Control.CastSpell(HK_Q)
     end
@@ -1341,7 +1341,7 @@ CastQM = function(target)
 
     local stacks = leeStacks()
 
-    if os.clock() - QCheck > 1 and Game.CanUseSpell(0) == 0 and target.pos:DistanceTo() < 1200 and myHero:GetSpellData(_Q).name == "BlindMonkQOne" then
+    if os.clock() - QCheck > 1 and Game.CanUseSpell(0) == 0 and target.pos:DistanceTo() < 1100 and myHero:GetSpellData(_Q).name == "BlindMonkQOne" then
         if stacks > 0 and target.pos:DistanceTo() < myHero.range then  return end
         
         
@@ -1356,10 +1356,14 @@ end
 
 CastQ1 = function(target)
     if os.clock() - QCheck > 1 and Game.CanUseSpell(0) == 0 and target.pos:DistanceTo() < 1200 and myHero:GetSpellData(_Q).name == "BlindMonkQOne" then
-        local aim = GetPred(target, 1500, .25)
+        local aim = GetPred(target, 1800, .25)
+        if aim:DistanceTo() > 1200 then
+            aim = myHero.pos + (aim - myHero.pos):Normalized() * 1100
+        end
         local mc = minionCollision(target, myHero.pos,aim)
         if mc == 0 then
-        Control.CastSpell(HK_Q, aim)
+            
+        CastSpell(HK_Q, aim, 1000)
         QCheck = os.clock()
         end
     end
@@ -2004,7 +2008,7 @@ end
 Saga_Menu = 
 function()
 	Saga = MenuElement({type = MENU, id = "Lee Sin", name = "Saga's Lee Sin: Blind Bitch", icon = AIOIcon})
-	MenuElement({ id = "blank", type = SPACE ,name = "Version BETA 1.1.2"})
+	MenuElement({ id = "blank", type = SPACE ,name = "Version BETA 1.1.3"})
 	--Combo
 	Saga:MenuElement({id = "Combo", name = "Combo", type = MENU})
     Saga.Combo:MenuElement({id = "UseQ", name = "Q", value = true})

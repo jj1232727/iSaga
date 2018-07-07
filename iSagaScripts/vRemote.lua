@@ -26,7 +26,7 @@ Data = {
         },
         LeeSin = {
             Changelog = "Fixed Ult Damage",
-            Version = "1.1.2",
+            Version = "1.1.3",
         },
         Orianna = {
             Changelog = "Orianna Auto Usage",
