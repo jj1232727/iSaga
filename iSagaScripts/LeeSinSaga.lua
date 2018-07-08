@@ -1169,9 +1169,11 @@ Combo = function()
     end
 
     if smiteslot and smitecast then
-        if Saga.smite.Asm:Value() and Saga.smite.st:Value() and  myHero:GetSpellData(smiteslot).ammo ~= 0 and myHero:GetSpellData(smiteslot).currentCd == 0 and smitecast and smiteslot and Game.CanUseSpell(smiteslot) and target.pos:DistanceTo() < 600 and myHero:GetSpellData(SUMMONER_1).name == 'S5_SummonerSmitePlayerGanker' or 
-        myHero:GetSpellData(smiteslot).name == 'S5_SummonerSmiteDuel' and  myHero:GetSpellData(smiteslot).currentCd == 0 and smitecast and smiteslot and Game.CanUseSpell(smiteslot) and target.pos:DistanceTo() < 600 then
-            Control.CastSpell(smitecast, target)
+        if Saga.smite.Asm:Value() and Saga.smite.st:Value() then 
+            if myHero:GetSpellData(smiteslot).ammo ~= 0 and myHero:GetSpellData(smiteslot).currentCd == 0 and smitecast and smiteslot and Game.CanUseSpell(smiteslot) and target.pos:DistanceTo() < 600 and myHero:GetSpellData(SUMMONER_1).name == 'S5_SummonerSmitePlayerGanker' or 
+            myHero:GetSpellData(smiteslot).name == 'S5_SummonerSmiteDuel' and  myHero:GetSpellData(smiteslot).currentCd == 0 and smitecast and smiteslot and Game.CanUseSpell(smiteslot) and target.pos:DistanceTo() < 600 then
+                Control.CastSpell(smitecast, target)
+            end
         end
     end
     if target.pos:DistanceTo() < myHero.range and stacks > 0 then return end
@@ -2007,7 +2009,7 @@ end
 Saga_Menu = 
 function()
 	Saga = MenuElement({type = MENU, id = "Lee Sin", name = "Saga's Lee Sin: Blind Bitch", icon = AIOIcon})
-	MenuElement({ id = "blank", type = SPACE ,name = "Version BETA 1.1.4"})
+	MenuElement({ id = "blank", type = SPACE ,name = "Version BETA 1.1.5"})
 	--Combo
 	Saga:MenuElement({id = "Combo", name = "Combo", type = MENU})
     Saga.Combo:MenuElement({id = "UseQ", name = "Q", value = true})
