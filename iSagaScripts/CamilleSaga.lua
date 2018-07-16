@@ -1163,7 +1163,7 @@ SIGroup = function(target)
 		
 		
 		local tmt = items[3077] or items[3748] or items[3074]
-		if tmt and Saga.items.tm:Value() and myHero:GetSpellData(tmt).currentCd == 0  and myHero.pos:DistanceTo(target.pos) < 400 and myHero.attackData.state == 2 then
+		if tmt and Saga.items.tm:Value() and myHero:GetSpellData(tmt).currentCd == 0  and myHero.pos:DistanceTo(target.pos) < 400 then
 			Control.CastSpell(HKITEM[tmt], target.pos)
 		end
 
@@ -1654,7 +1654,7 @@ end
 Saga_Menu = 
 function()
 	Saga = MenuElement({type = MENU, id = "Camille", name = "Saga's Camille: She will butch your meat", icon = AIOIcon})
-	MenuElement({ id = "blank", type = SPACE ,name = "Version BETA 1.0.5"})
+	MenuElement({ id = "blank", type = SPACE ,name = "Version BETA 1.0.6"})
 	--Combo
 	Saga:MenuElement({id = "Combo", name = "Combo", type = MENU})
     Saga.Combo:MenuElement({id = "UseQ", name = "Q", value = true})
