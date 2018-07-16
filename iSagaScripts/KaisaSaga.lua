@@ -137,13 +137,13 @@ end
 GetTarget = function(range)
 
 	if SagaOrb == 1 then
-		if CockMaw.ap > CockMaw.totalDamage then
-			return EOW:GetTarget(range, EOW.ap_dec, CockMaw.pos)
+		if myHero.ap > myHero.totalDamage then
+			return EOW:GetTarget(range, EOW.ap_dec, myHero.pos)
 		else
-			return EOW:GetTarget(range, EOW.ad_dec, CockMaw.pos)
+			return EOW:GetTarget(range, EOW.ad_dec, myHero.pos)
 		end
 	elseif SagaOrb == 2 and SagaSDKSelector then
-		if CockMaw.ap > CockMaw.totalDamage then
+		if myHero.ap > myHero.totalDamage then
 			return SagaSDKSelector:GetTarget(range, SagaSDKMagicDamage)
 		else
 			return SagaSDKSelector:GetTarget(range, SagaSDKPhysicalDamage)
@@ -152,7 +152,7 @@ GetTarget = function(range)
     elseif SagaOrb == 4 then
         return myOrb:GetOrbTarget(range)
 	elseif _G.GOS then
-		if CockMaw.ap > CockMaw.totalDamage then
+		if myHero.ap > myHero.totalDamage then
 			return GOS:GetTarget(range, "AP")
 		else
 			return GOS:GetTarget(range, "AD")
@@ -795,7 +795,7 @@ SIGroup = function(target)
 end
 
     Saga = MenuElement({type = MENU, id = "Kaisa", name = "Kaisa - Plasma Hentai Instead of Tencticles", icon = AIOIcon})
-	MenuElement({ id = "blank", type = SPACE ,name = "BETA Version 1.0.1"})
+	MenuElement({ id = "blank", type = SPACE ,name = "BETA Version 1.0.2"})
     
     Saga:MenuElement({id = "Combo", name = "Combo", type = MENU})
     Saga.Combo:MenuElement({id = "UseQ", name = "Q", value = true})

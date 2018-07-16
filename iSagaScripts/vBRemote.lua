@@ -6,7 +6,7 @@ Data = {
     Champions = {
         Camille = {
             Changelog = "Death Checks to Void Spam on Death Target",
-            Version = "BETA 1.1.0",
+            Version = "BETA 1.1.1",
         },
         Diana = {
             Changelog = "Added Q Buff Before using R",
@@ -14,15 +14,15 @@ Data = {
         },
         Irelia = {
             Changelog = "E Fix",
-            Version = "2.7.6",
+            Version = "2.7.7",
         },
         Jinx = {
             Changelog = "W Fix",
-            Version = "3.1.0",
+            Version = "3.1.1",
         },
         Kaisa = {
             Changelog = "Created Menu and Added Features",
-            Version = "BETA 1.0.1",
+            Version = "BETA 1.0.2",
         },
         Karthus = {
             Changelog = "E Fix",

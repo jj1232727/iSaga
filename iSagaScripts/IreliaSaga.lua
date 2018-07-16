@@ -240,13 +240,13 @@ end
 GetTarget = function(range)
 
 	if SagaOrb == 1 then
-		if CockMaw.ap > CockMaw.totalDamage then
-			return EOW:GetTarget(range, EOW.ap_dec, CockMaw.pos)
+		if myHero.ap > myHero.totalDamage then
+			return EOW:GetTarget(range, EOW.ap_dec, myHero.pos)
 		else
-			return EOW:GetTarget(range, EOW.ad_dec, CockMaw.pos)
+			return EOW:GetTarget(range, EOW.ad_dec, myHero.pos)
 		end
 	elseif SagaOrb == 2 and SagaSDKSelector then
-		if CockMaw.ap > CockMaw.totalDamage then
+		if myHero.ap > myHero.totalDamage then
 			return SagaSDKSelector:GetTarget(range, SagaSDKMagicDamage)
 		else
 			return SagaSDKSelector:GetTarget(range, SagaSDKPhysicalDamage)
@@ -1395,7 +1395,7 @@ end
 Saga_Menu = 
 function()
 	Saga = MenuElement({type = MENU, id = "Irelia", name = "Saga's Irelia: Please Don't Nerf Me", icon = AIOIcon})
-	MenuElement({ id = "blank", type = SPACE ,name = "Version 2.7.6"})
+	MenuElement({ id = "blank", type = SPACE ,name = "Version 2.7.7"})
 	--Combo
 	Saga:MenuElement({id = "Combo", name = "Combo", type = MENU})
     Saga.Combo:MenuElement({id = "UseQ", name = "Q", value = true})
