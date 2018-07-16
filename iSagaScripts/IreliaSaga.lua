@@ -48,6 +48,7 @@ local e1clock = 0
 local stonecoldstunner = {}
 local Espot,Espot2, EUnit
 local spaceE = 0
+local myOrb
 
 
 
@@ -239,26 +240,27 @@ end
 GetTarget = function(range)
 
 	if SagaOrb == 1 then
-		if Irelia.ap > Irelia.totalDamage then
-			return EOW:GetTarget(range, EOW.ap_dec, Irelia.pos)
+		if CockMaw.ap > CockMaw.totalDamage then
+			return EOW:GetTarget(range, EOW.ap_dec, CockMaw.pos)
 		else
-			return EOW:GetTarget(range, EOW.ad_dec, Irelia.pos)
+			return EOW:GetTarget(range, EOW.ad_dec, CockMaw.pos)
 		end
 	elseif SagaOrb == 2 and SagaSDKSelector then
-		if Irelia.ap > Irelia.totalDamage then
+		if CockMaw.ap > CockMaw.totalDamage then
 			return SagaSDKSelector:GetTarget(range, SagaSDKMagicDamage)
 		else
 			return SagaSDKSelector:GetTarget(range, SagaSDKPhysicalDamage)
-		end
+        end
+        
+    elseif SagaOrb == 4 then
+        return myOrb:GetOrbTarget(range)
 	elseif _G.GOS then
-		if Irelia.ap > Irelia.totalDamage then
+		if myHero.ap > myHero.totalDamage then
 			return GOS:GetTarget(range, "AP")
 		else
 			return GOS:GetTarget(range, "AD")
         end
-    elseif _G.gsoSDK then
-		return _G.gsoSDK.TS:GetTarget()
-	end
+    end
 end
 
 GetPathNodes = function(unit)
@@ -549,44 +551,44 @@ GetIgnite()
 Saga_Menu()
 
 
-if _G.EOWLoaded then
-     SagaOrb = 1
-elseif _G.SDK and _G.SDK.Orbwalker then
-     SagaOrb = 2
-elseif _G.GOS then
-     SagaOrb = 3
-elseif _G.gsoSDK then
+if _G.TNS then
     SagaOrb = 4
+    myOrb = _G.TNSOrbWalker
+elseif _G.EOWLoaded then
+    SagaOrb = 1
+elseif _G.SDK and _G.SDK.Orbwalker then
+    SagaOrb = 2
+elseif _G.GOS then
+    SagaOrb = 3
+--[[elseif __gsoSDK then
+    SagaOrb = 4]]--
 end
 
 if  SagaOrb == 1 then
-    local mode = EOW:Mode()
+   local mode = EOW:Mode()
 
-	Sagacombo = mode == 1
-	Sagaharass = mode == 2
-	SagalastHit = mode == 3
-	SagalaneClear = mode == 4
-	SagajungleClear = mode == 4
+   Sagacombo = mode == 1
+   Sagaharass = mode == 2
+   SagalastHit = mode == 3
+   SagalaneClear = mode == 4
+   SagajungleClear = mode == 4
 
-	Sagacanmove = EOW:CanMove()
-    Sagacanattack = EOW:CanAttack()
+   Sagacanmove = EOW:CanMove()
+   Sagacanattack = EOW:CanAttack()
 elseif  SagaOrb == 2 then
-     SagaSDK = SDK.Orbwalker
-     SagaSDKCombo = SDK.ORBWALKER_MODE_COMBO
-     SagaSDKHarass = SDK.ORBWALKER_MODE_HARASS
-     SagaSDKJungleClear = SDK.ORBWALKER_MODE_JUNGLECLEAR
-     SagaSDKJungleClear = SDK.ORBWALKER_MODE_JUNGLECLEAR
-     SagaSDKLaneClear = SDK.ORBWALKER_MODE_LANECLEAR
-     SagaSDKLastHit = SDK.ORBWALKER_MODE_LASTHIT
-     SagaSDKFlee = SDK.ORBWALKER_MODE_FLEE
-     SagaSDKSelector = SDK.TargetSelector
-     SagaSDKMagicDamage = _G.SDK.DAMAGE_TYPE_MAGICAL
-     SagaSDKPhysicalDamage = _G.SDK.DAMAGE_TYPE_PHYSICAL
-elseif  SagaOrb == 3 then
-    
-
-	SagaGOScanmove = GOS:CanMove()
-    SagaGOScanattack = GOS:CanAttack()
+    SagaSDK = SDK.Orbwalker
+    SagaSDKCombo = SDK.ORBWALKER_MODE_COMBO
+    SagaSDKHarass = SDK.ORBWALKER_MODE_HARASS
+    SagaSDKJungleClear = SDK.ORBWALKER_MODE_JUNGLECLEAR
+    SagaSDKJungleClear = SDK.ORBWALKER_MODE_JUNGLECLEAR
+    SagaSDKLaneClear = SDK.ORBWALKER_MODE_LANECLEAR
+    SagaSDKLastHit = SDK.ORBWALKER_MODE_LASTHIT
+    SagaSDKFlee = SDK.ORBWALKER_MODE_FLEE
+    SagaSDKSelector = SDK.TargetSelector
+    SagaSDKMagicDamage = _G.SDK.DAMAGE_TYPE_MAGICAL
+    SagaSDKPhysicalDamage = _G.SDK.DAMAGE_TYPE_PHYSICAL
+elseif  SagaOrb == 4 then
+    print("MyOrbbbb")
 end
 end)
 
@@ -620,7 +622,6 @@ end
 
 
 GetOrbMode = function()
-    
     if SagaOrb == 1 then
         if Sagacombo == 1 then
             return 'Combo'
@@ -647,9 +648,9 @@ GetOrbMode = function()
     elseif SagaOrb == 3 then
         return GOS:GetMode()
     elseif SagaOrb == 4 then
-        return _G.gsoSDK.Orbwalker:GetMode()
+         return myOrb:Mode()
     end
-end
+ end
 
 LocalCallbackAdd("Tick", function()
     
@@ -713,6 +714,7 @@ LocalCallbackAdd("Tick", function()
         
         local unit = GetTarget(E.Range)
         if unit and Game.CanUseSpell(2) == 0 and GetDistanceSqr(unit) < E.Range * E.Range then
+            if GetOrbMode() == "" or GetOrbMode() == "Clear" then return end
             local  aim = GetPred(unit,math.huge,0.25+ Game.Latency()/1000)
                 Espot = unit.pos + (myHero.pos - unit.pos): Normalized() * 875
             
@@ -1138,7 +1140,7 @@ function CastETarget(unit)
     if myHero.attackData.state ~= 2 and myHero:GetSpellData(_E).name == "IreliaE2" then
         Espot2 = unit.pos + (myHero.pos - unit.pos): Normalized() * -150
         DisableMovement(true)
-        CastSpell(HK_E, Espot2, E.Range, .25)
+        Control.CastSpell(HK_E, Espot2)
         DisableMovement(false)
         eStun = os.clock()
     --[[if myHero:GetSpellData(_E).name == "IreliaE2" then
@@ -1393,7 +1395,7 @@ end
 Saga_Menu = 
 function()
 	Saga = MenuElement({type = MENU, id = "Irelia", name = "Saga's Irelia: Please Don't Nerf Me", icon = AIOIcon})
-	MenuElement({ id = "blank", type = SPACE ,name = "Version 2.7.5"})
+	MenuElement({ id = "blank", type = SPACE ,name = "Version 2.7.6"})
 	--Combo
 	Saga:MenuElement({id = "Combo", name = "Combo", type = MENU})
     Saga.Combo:MenuElement({id = "UseQ", name = "Q", value = true})
