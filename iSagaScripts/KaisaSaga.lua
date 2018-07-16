@@ -25,6 +25,7 @@ local TotalHeroes
 local LocalCallbackAdd = Callback.Add
 local _OnVision = {}
 local visionTick = 0
+local myOrb
 
 
 local isEvading = ExtLibEvade and ExtLibEvade.Evading
@@ -136,24 +137,27 @@ end
 GetTarget = function(range)
 
 	if SagaOrb == 1 then
-		if kaisa.ap > kaisa.totalDamage then
-			return EOW:GetTarget(range, EOW.ap_dec, kaisa.pos)
+		if CockMaw.ap > CockMaw.totalDamage then
+			return EOW:GetTarget(range, EOW.ap_dec, CockMaw.pos)
 		else
-			return EOW:GetTarget(range, EOW.ad_dec, kaisa.pos)
+			return EOW:GetTarget(range, EOW.ad_dec, CockMaw.pos)
 		end
 	elseif SagaOrb == 2 and SagaSDKSelector then
-		if kaisa.ap > kaisa.totalDamage then
+		if CockMaw.ap > CockMaw.totalDamage then
 			return SagaSDKSelector:GetTarget(range, SagaSDKMagicDamage)
 		else
 			return SagaSDKSelector:GetTarget(range, SagaSDKPhysicalDamage)
-		end
+        end
+        
+    elseif SagaOrb == 4 then
+        return myOrb:GetOrbTarget(range)
 	elseif _G.GOS then
-		if kaisa.ap > kaisa.totalDamage then
+		if CockMaw.ap > CockMaw.totalDamage then
 			return GOS:GetTarget(range, "AP")
 		else
 			return GOS:GetTarget(range, "AD")
-		end
-	end
+        end
+    end
 end
 
 GetPathNodes = function(unit)
@@ -354,43 +358,44 @@ end
 
 LocalCallbackAdd("Load", function()
 TotalHeroes = GetEnemyHeroes()
-
-if _G.EOWLoaded then
+if _G.TNS then
+    SagaOrb = 4
+    myOrb = _G.TNSOrbWalker
+elseif _G.EOWLoaded then
     SagaOrb = 1
 elseif _G.SDK and _G.SDK.Orbwalker then
     SagaOrb = 2
 elseif _G.GOS then
     SagaOrb = 3
-elseif _G.gsoSDK then
-    SagaOrb = 4
+--[[elseif __gsoSDK then
+    SagaOrb = 4]]--
 end
 
 if  SagaOrb == 1 then
-    local mode = EOW:Mode()
- 
-    Sagacombo = mode == 1
-    Sagaharass = mode == 2
-    SagalastHit = mode == 3
-    SagalaneClear = mode == 4
-    SagajungleClear = mode == 4
- 
-    Sagacanmove = EOW:CanMove()
-    Sagacanattack = EOW:CanAttack()
- elseif  SagaOrb == 2 then
-     SagaSDK = SDK.Orbwalker
-     SagaSDKCombo = SDK.ORBWALKER_MODE_COMBO
-     SagaSDKHarass = SDK.ORBWALKER_MODE_HARASS
-     SagaSDKJungleClear = SDK.ORBWALKER_MODE_JUNGLECLEAR
-     SagaSDKJungleClear = SDK.ORBWALKER_MODE_JUNGLECLEAR
-     SagaSDKLaneClear = SDK.ORBWALKER_MODE_LANECLEAR
-     SagaSDKLastHit = SDK.ORBWALKER_MODE_LASTHIT
-     SagaSDKFlee = SDK.ORBWALKER_MODE_FLEE
-     SagaSDKSelector = SDK.TargetSelector
-     SagaSDKMagicDamage = _G.SDK.DAMAGE_TYPE_MAGICAL
-     SagaSDKPhysicalDamage = _G.SDK.DAMAGE_TYPE_PHYSICAL
- elseif  SagaOrb == 3 then
-    
- end
+   local mode = EOW:Mode()
+
+   Sagacombo = mode == 1
+   Sagaharass = mode == 2
+   SagalastHit = mode == 3
+   SagalaneClear = mode == 4
+   SagajungleClear = mode == 4
+
+   Sagacanmove = EOW:CanMove()
+   Sagacanattack = EOW:CanAttack()
+elseif  SagaOrb == 2 then
+    SagaSDK = SDK.Orbwalker
+    SagaSDKCombo = SDK.ORBWALKER_MODE_COMBO
+    SagaSDKHarass = SDK.ORBWALKER_MODE_HARASS
+    SagaSDKJungleClear = SDK.ORBWALKER_MODE_JUNGLECLEAR
+    SagaSDKJungleClear = SDK.ORBWALKER_MODE_JUNGLECLEAR
+    SagaSDKLaneClear = SDK.ORBWALKER_MODE_LANECLEAR
+    SagaSDKLastHit = SDK.ORBWALKER_MODE_LASTHIT
+    SagaSDKFlee = SDK.ORBWALKER_MODE_FLEE
+    SagaSDKSelector = SDK.TargetSelector
+    SagaSDKMagicDamage = _G.SDK.DAMAGE_TYPE_MAGICAL
+    SagaSDKPhysicalDamage = _G.SDK.DAMAGE_TYPE_PHYSICAL
+elseif  SagaOrb == 4 then
+end
  end)
 
 --LocalCallbackAdd("Tick", function() orb = GetOrbMode() end)
@@ -406,7 +411,9 @@ DisableMovement = function(bool)
 	elseif SagaOrb == 1 then
 		EOW:SetMovements(not bool)
 	elseif SagaOrb == 3 then
-		GOS.BlockMovement = bool
+        GOS.BlockMovement = bool
+    elseif SagaOrb == 4 then
+        myOrb:DisableMovements(bool)
 	end
 end
 
@@ -417,7 +424,9 @@ DisableAttacks = function(bool)
 	elseif SagaOrb == 1 then
 		EOW:SetAttacks(not bool)
 	elseif SagaOrb == 3 then
-		GOS.BlockAttack = bool
+        GOS.BlockAttack = bool
+    elseif SagaOrb == 4 then
+        myOrb:DisableAttacks(bool)
 	end
 end
 
@@ -449,7 +458,7 @@ GetOrbMode = function()
     elseif SagaOrb == 3 then
         return GOS:GetMode()
     elseif SagaOrb == 4 then
-         return _G.gsoSDK.Orbwalker:GetMode()
+         return myOrb:Mode()
     end
  end
 
@@ -639,6 +648,7 @@ end
 --3147
 
 function Combo()
+    if GotBuff(myHero,"KaisaE") == 1 then return end
     local target = GetTarget(Q.Range)
     local target2 = GetTarget(W.Range)
     local target3 = GetTarget(530)
@@ -657,7 +667,11 @@ function Combo()
             local aim = GetPred(target2,math.huge,0.25 + Game.Latency()/1000)
             if aim and minionCollision(target2, kaisa.pos, aim)  == 0 then
                 if ItsReadyDumbAss(1) == 0 and aim:To2D().onScreen then
-                    CastSpell(HK_W, aim, W.Range, W.Delay * 1000)
+                    if SagaOrb == 4 then
+                        CastItDumbFuk(HK_W, aim)
+                    else
+                        CastSpell(HK_W, aim, W.Range, W.Delay * 1000)
+                    end
                 end
             end
         end
@@ -668,6 +682,7 @@ function Combo()
             CastItDumbFuk(HK_E)
         end
     end
+    
 end
 
 function Harass()
@@ -690,7 +705,11 @@ function Harass()
             local aim = GetPred(target2,math.huge,W.Delay + Game.Latency()/1000)
             if aim and minionCollision(target2, kaisa.pos, aim)  == 0 then
                 if aim:To2D().onScreen then
-                    CastSpell(HK_W, aim, W.Range, W.Delay * 1000)
+                    if SagaOrb == 4 then
+                        CastItDumbFuk(HK_W, aim)
+                    else
+                        CastSpell(HK_W, aim, W.Range, W.Delay * 1000)
+                    end
                 end
             end
         end
@@ -726,7 +745,11 @@ function LaneClear()
                 local aim = GetPred(target2,math.huge,0.25 + Game.Latency()/1000)
                 if aim and minionCollision(target2, kaisa.pos, aim)  == 0 then
                     if aim:To2D().onScreen then
-                        CastSpell(HK_W, aim, W.Range, W.Delay * 1000)
+                        if SagaOrb == 4 then
+                            CastItDumbFuk(HK_W, aim)
+                        else
+                            CastSpell(HK_W, aim, W.Range, W.Delay * 1000)
+                        end
                     end
                 end
             end
@@ -772,7 +795,7 @@ SIGroup = function(target)
 end
 
     Saga = MenuElement({type = MENU, id = "Kaisa", name = "Kaisa - Plasma Hentai Instead of Tencticles", icon = AIOIcon})
-	MenuElement({ id = "blank", type = SPACE ,name = "BETA Version 1.0.0"})
+	MenuElement({ id = "blank", type = SPACE ,name = "BETA Version 1.0.1"})
     
     Saga:MenuElement({id = "Combo", name = "Combo", type = MENU})
     Saga.Combo:MenuElement({id = "UseQ", name = "Q", value = true})
