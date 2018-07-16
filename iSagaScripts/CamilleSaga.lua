@@ -1140,6 +1140,25 @@ Clear = function()
                 Control.CastSpell(HK_W, minion.pos)
             end
         end
+
+        if minion.team == 300 and minion then
+            if not minion.dead and minion.visible and minion.isTargetable then
+                if Saga.Clear.UseQ:Value() and GetDistanceSqr(myHero, minion) < 200 * 200 and Game.CanUseSpell(0) == 0 then
+                    Control.CastSpell(HK_Q)
+                end
+                if  myHero:GetSpellData(_Q).name == "CamilleQ" and os.clock() - QCast > 2.5 and Saga.Clear.UseQ:Value() and Game.CanUseSpell(0) == 0 and minion.pos:DistanceTo() < 300 then
+                    Control.CastSpell(HK_Q)
+                    ResetAutoAttack()
+                    QCast = os.clock()
+                end
+                
+                if  GotBuff(myHero, "camilleqprimingcomplete") == 1 and Saga.Clear.UseQ:Value() and Game.CanUseSpell(0) == 0 and minion.pos:DistanceTo() < 300 then
+                    Control.CastSpell(HK_Q)
+                    ResetAutoAttack()
+                end
+            end
+        end
+
     end
 end
 
@@ -1658,7 +1677,7 @@ end
 Saga_Menu = 
 function()
 	Saga = MenuElement({type = MENU, id = "Camille", name = "Saga's Camille: She will butch your meat", icon = AIOIcon})
-	MenuElement({ id = "blank", type = SPACE ,name = "Version BETA 1.0.8"})
+	MenuElement({ id = "blank", type = SPACE ,name = "Version BETA 1.0.9"})
 	--Combo
 	Saga:MenuElement({id = "Combo", name = "Combo", type = MENU})
     Saga.Combo:MenuElement({id = "UseQ", name = "Q", value = true})
