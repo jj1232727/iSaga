@@ -37,6 +37,7 @@ local HKITEM = { [ITEM_1] = 49, [ITEM_2] = 50, [ITEM_3] = 51, [ITEM_4] = 53, [IT
 local QCast = 0
 local ignitecast
 local igniteslot
+local myOrb
 
 
 require "MapPosition"
@@ -524,28 +525,29 @@ end
 GetTarget = function(range)
 
 	if SagaOrb == 1 then
-		if Camille.ap > Camille.totalDamage then
-			return EOW:GetTarget(range, EOW.ap_dec, Camille.pos)
+		if CockMaw.ap > CockMaw.totalDamage then
+			return EOW:GetTarget(range, EOW.ap_dec, CockMaw.pos)
 		else
-			return EOW:GetTarget(range, EOW.ad_dec, Camille.pos)
+			return EOW:GetTarget(range, EOW.ad_dec, CockMaw.pos)
 		end
 	elseif SagaOrb == 2 and SagaSDKSelector then
-		if Camille.ap > Camille.totalDamage then
+		if CockMaw.ap > CockMaw.totalDamage then
 			return SagaSDKSelector:GetTarget(range, SagaSDKMagicDamage)
 		else
 			return SagaSDKSelector:GetTarget(range, SagaSDKPhysicalDamage)
         end
-    elseif _G.GOS then
-		if Camille.ap > Camille.totalDamage then
+        
+    elseif SagaOrb == 4 then
+        return myOrb:GetOrbTarget(range)
+	elseif _G.GOS then
+		if CockMaw.ap > CockMaw.totalDamage then
 			return GOS:GetTarget(range, "AP")
 		else
 			return GOS:GetTarget(range, "AD")
         end
-    elseif _G.__gsoSDK then
-        local enemyHeroes_ADdmg = __gsoOB:GetEnemyHeroes(range, false, "attack")
-        return __TS:GetTarget(enemyHeroes_ADdmg)
-	end
+    end
 end
+
 
 GetImmobileTime = function(unit)
     local duration = 0
@@ -841,7 +843,10 @@ if Game.Timer() > Saga.Rate.champion:Value() and #_EnemyHeroes == 0 then
         end
     end
 end
-if _G.EOWLoaded then
+if _G.TNS then
+    SagaOrb = 4
+    myOrb = _G.TNSOrbWalker
+elseif _G.EOWLoaded then
     SagaOrb = 1
 elseif _G.SDK and _G.SDK.Orbwalker then
     SagaOrb = 2
@@ -874,8 +879,7 @@ elseif  SagaOrb == 2 then
     SagaSDKSelector = SDK.TargetSelector
     SagaSDKMagicDamage = _G.SDK.DAMAGE_TYPE_MAGICAL
     SagaSDKPhysicalDamage = _G.SDK.DAMAGE_TYPE_PHYSICAL
-elseif  SagaOrb == 3 then
-   
+elseif  SagaOrb == 4 then
 end
 end)
 
@@ -909,35 +913,35 @@ end
 
 
 GetOrbMode = function()
-   if SagaOrb == 1 then
-       if Sagacombo == 1 then
-           return 'Combo'
-       elseif Sagaharass == 2 then
-           return 'Harass'
-       elseif SagalastHit == 3 then
-           return 'Lasthit'
-       elseif SagalaneClear == 4 then
-           return 'Clear'
-       end
-   elseif SagaOrb == 2 then
-       SagaSDKModes = SDK.Orbwalker.Modes
-       if SagaSDKModes[SagaSDKCombo] then
-           return 'Combo'
-       elseif SagaSDKModes[SagaSDKHarass] then
-           return 'Harass'
-       elseif SagaSDKModes[SagaSDKLaneClear] or SagaSDKModes[SagaSDKJungleClear] then
-           return 'Clear'
-       elseif SagaSDKModes[SagaSDKLastHit] then
-           return 'Lasthit'
-       elseif SagaSDKModes[SagaSDKFlee] then
-           return 'Flee'
-       end
-   elseif SagaOrb == 3 then
-       return GOS:GetMode()
-   elseif SagaOrb == 4 then
-        return __gsoOrbwalker.GetMode()
-   end
-end
+    if SagaOrb == 1 then
+        if Sagacombo == 1 then
+            return 'Combo'
+        elseif Sagaharass == 2 then
+            return 'Harass'
+        elseif SagalastHit == 3 then
+            return 'Lasthit'
+        elseif SagalaneClear == 4 then
+            return 'Clear'
+        end
+    elseif SagaOrb == 2 then
+        SagaSDKModes = SDK.Orbwalker.Modes
+        if SagaSDKModes[SagaSDKCombo] then
+            return 'Combo'
+        elseif SagaSDKModes[SagaSDKHarass] then
+            return 'Harass'
+        elseif SagaSDKModes[SagaSDKLaneClear] or SagaSDKModes[SagaSDKJungleClear] then
+            return 'Clear'
+        elseif SagaSDKModes[SagaSDKLastHit] then
+            return 'Lasthit'
+        elseif SagaSDKModes[SagaSDKFlee] then
+            return 'Flee'
+        end
+    elseif SagaOrb == 3 then
+        return GOS:GetMode()
+    elseif SagaOrb == 4 then
+         return myOrb:Mode()
+    end
+ end
 
 
 
@@ -1654,7 +1658,7 @@ end
 Saga_Menu = 
 function()
 	Saga = MenuElement({type = MENU, id = "Camille", name = "Saga's Camille: She will butch your meat", icon = AIOIcon})
-	MenuElement({ id = "blank", type = SPACE ,name = "Version BETA 1.0.7"})
+	MenuElement({ id = "blank", type = SPACE ,name = "Version BETA 1.0.8"})
 	--Combo
 	Saga:MenuElement({id = "Combo", name = "Combo", type = MENU})
     Saga.Combo:MenuElement({id = "UseQ", name = "Q", value = true})
