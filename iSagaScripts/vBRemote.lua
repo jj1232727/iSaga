@@ -34,7 +34,7 @@ Data = {
         },
         KogMaw = {
             Changelog = "Beta Release",
-            Version = "BETA 1.0.0",
+            Version = "BETA 1.1.0",
         },
         LeeSin = {
             Changelog = "Fixed Ult Damage",

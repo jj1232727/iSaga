@@ -31,6 +31,7 @@ local TotalHeroes
 local LocalCallbackAdd = Callback.Add
 local visionTick = 0
 local _OnVision = {}
+local myOrb
 
 
 local isEvading = ExtLibEvade and ExtLibEvade.Evading
@@ -151,14 +152,17 @@ GetTarget = function(range)
 			return SagaSDKSelector:GetTarget(range, SagaSDKMagicDamage)
 		else
 			return SagaSDKSelector:GetTarget(range, SagaSDKPhysicalDamage)
-		end
+        end
+        
+    elseif SagaOrb == 4 then
+        return myOrb:GetOrbTarget(range)
 	elseif _G.GOS then
 		if CockMaw.ap > CockMaw.totalDamage then
 			return GOS:GetTarget(range, "AP")
 		else
 			return GOS:GetTarget(range, "AD")
-		end
-	end
+        end
+    end
 end
 
 GetPathNodes = function(unit)
@@ -360,7 +364,10 @@ end
 LocalCallbackAdd("Load", function()
 TotalHeroes = GetEnemyHeroes()
 Saga_Menu()
-if _G.EOWLoaded then
+if _G.TNS then
+    SagaOrb = 4
+    myOrb = _G.TNSOrbWalker
+elseif _G.EOWLoaded then
     SagaOrb = 1
 elseif _G.SDK and _G.SDK.Orbwalker then
     SagaOrb = 2
@@ -393,8 +400,8 @@ elseif  SagaOrb == 2 then
     SagaSDKSelector = SDK.TargetSelector
     SagaSDKMagicDamage = _G.SDK.DAMAGE_TYPE_MAGICAL
     SagaSDKPhysicalDamage = _G.SDK.DAMAGE_TYPE_PHYSICAL
-elseif  SagaOrb == 3 then
-   
+elseif  SagaOrb == 4 then
+    print("MyOrbbbb")
 end
 end)
 
@@ -454,7 +461,7 @@ GetOrbMode = function()
     elseif SagaOrb == 3 then
         return GOS:GetMode()
     elseif SagaOrb == 4 then
-         return __gsoOrbwalker.GetMode()
+         return myOrb:Mode()
     end
  end
 
@@ -505,9 +512,22 @@ GetRstacks =  function()
 	end
 end
 
+findEmemy = function(range)
+    local target
+    for i=1, Game.HeroCount() do
+        local unit= Game.Hero(i)
+        if range and unit and unit.isEnemy and unit.valid and unit.distance <= range and unit.isTargetable and not unit.dead and not unit.isImmortal and not (GotBuff(unit, 'FioraW') == 1) and
+            not (GotBuff(unit, 'XinZhaoRRangedImmunity') == 1 and unit.distance <= 450) and unit.visible then
+            target = unit
+        end
+    end
+    return target
+end
+
+
 rKSCombo = function()
     local spitstacks = GetRstacks() or 0
-    target = GetTarget(finalrange2)
+    target = findEmemy(finalrange2)
     if validTarget(target) and Saga.KillSteal.UseR:Value() then
         local rdmg = ({100, 140,180})[rlvl] + .65 * CockMaw.totalDamage + 0.25 * CockMaw.ap
         local totaldmg = CalculatePhysicalDamage(target, rdmg)
@@ -516,13 +536,16 @@ rKSCombo = function()
             if GetDistance(myHero, aim) > finalrange2  then
                 aim = myHero.pos + (aim - myHero.pos):Normalized() * finalrange2
             end
-                CastSpell(HK_R, aim, 1200)
+            if spitstacks <= Saga.Stacks.RCount:Value() then
+                Control.CastSpell(HK_R, aim)
+            end
         end
     end
 end
 Combo = function()
 
     local target2 = GetTarget(Q.Range)
+    SIGroup(target2)
     if validTarget(target2) and Saga.Combo.UseW:Value() then
         
         if target2.pos:DistanceTo() <= finalrange and ItsReadyDumbAss(1) == 0 and myHero.attackData.state ~= 2 then
@@ -557,18 +580,21 @@ Combo = function()
     end
 
     local spitstacks = GetRstacks() or 0
-    local target4 = GetTarget(finalrange2)
+    local target4 = GetTarget(1800)
     if validTarget(target4) and Saga.Combo.UseR:Value() then
-        if target2.pos:DistanceTo() < finalrange2 and ItsReadyDumbAss(3) == 0 and spitstacks <= Saga.Stacks.RCount:Value() and myHero.attackData.state ~= 2 then
+        if target4.pos:DistanceTo() < finalrange2 and ItsReadyDumbAss(3) == 0 and spitstacks <= Saga.Stacks.RCount:Value() and myHero.attackData.state ~= 2 then
             local  aim3 = GetPred(target4,R.Speed,1)
+           
             if GetDistance(myHero, aim3) > finalrange2 then
                 aim3 = myHero.pos + (aim3 - myHero.pos):Normalized() * finalrange2
+                
             end
-            if (45 >= (100 * target4.health / target4.maxHealth)) and Saga.Stacks.UseR45:Value() then
-                CastSpell(HK_R, aim3, 1200)
+            if spitstacks <= Saga.Stacks.RCount:Value() and (45 >= (100 * target4.health / target4.maxHealth)) and Saga.Stacks.UseR45:Value() then
+                
+                Control.CastSpell(HK_R, aim3)
             end
-            if not Saga.Stacks.UseR45:Value() then
-                CastSpell(HK_R, aim3, 1200)
+            if not Saga.Stacks.UseR45:Value() and spitstacks <= Saga.Stacks.RCount:Value() then
+                Control.CastSpell(HK_R, aim3)
             end
         end
     end
@@ -578,7 +604,6 @@ local castSpell = {state = 0, tick = GetTickCount(), casting = GetTickCount() - 
 Harass = function()
     local target2 = GetTarget(Q.Range)
     if validTarget(target2) and Saga.Harass.UseW:Value() then
-        SIGroup(target2)
         if target2.pos:DistanceTo() <= finalrange and ItsReadyDumbAss(1) == 0 and myHero.attackData.state ~= 2 then
             CastItDumbFuk(HK_W)
         end
@@ -828,7 +853,7 @@ end
 Saga_Menu = 
 function()
 Saga = MenuElement({type = MENU, id = "KogMaw", name = "Saga's KogMaw - Alein Ass Rug Scraper", icon = AIOIcon})
-	MenuElement({ id = "blank", type = SPACE ,name = "BETA Version 1.0.0"})
+	MenuElement({ id = "blank", type = SPACE ,name = "BETA Version 1.1.0"})
     
     Saga:MenuElement({id = "Combo", name = "Combo", type = MENU})
     Saga.Combo:MenuElement({id = "UseQ", name = "Q", value = true})
