@@ -1052,7 +1052,7 @@ CastBurst = function(target)
     for i=0, 15 do
         local pos = RotateAroundPoint(myHero.pos + Vector(0,0,800), myHero.pos, math.pi / 8 * i)
         local segment = LineSegment(Point(myHero.pos), Point(pos))
-        local aim = GetPred(target, 2000, .25 + Game.Latency()/1000)
+        local aim = GetPred(target, 2000, .25)
         if GetDistance(myHero, aim) > 800 then
             aim = myHero.pos + (aim- myHero.pos):Normalized() * 800
         end
@@ -1085,7 +1085,7 @@ CastBurst = function(target)
 
         end
         if Saga.Combo.UseW:Value() and isCasting == false and Game.CanUseSpell(1) == 0 and Game.CanUseSpell(2) ~= 0 and target.pos:DistanceTo() < 800 then
-            local aim2 = GetPred(target, 1500, .25 + Game.Latency()/1000)
+            local aim2 = GetPred(target, 1500, .25)
             CastSpell(HK_W, aim2)
             isCastingW = os.clock()
         end
@@ -1654,7 +1654,7 @@ end
 Saga_Menu = 
 function()
 	Saga = MenuElement({type = MENU, id = "Camille", name = "Saga's Camille: She will butch your meat", icon = AIOIcon})
-	MenuElement({ id = "blank", type = SPACE ,name = "Version BETA 1.0.6"})
+	MenuElement({ id = "blank", type = SPACE ,name = "Version BETA 1.0.7"})
 	--Combo
 	Saga:MenuElement({id = "Combo", name = "Combo", type = MENU})
     Saga.Combo:MenuElement({id = "UseQ", name = "Q", value = true})
