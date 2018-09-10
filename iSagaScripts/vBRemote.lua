@@ -42,7 +42,7 @@ Data = {
         },
         Orianna = {
             Changelog = "Orianna Auto Usage",
-            Version = "3.2.1",
+            Version = "3.2.2",
         },
         Syndra = {
             Changelog = "Prediction Tweaks",

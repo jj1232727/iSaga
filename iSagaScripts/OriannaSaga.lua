@@ -246,23 +246,7 @@ require "MapPosition"
 			end	
 
 )
-	LocalCallbackAdd("Draw", function()
-	
-		--Draw.Circle(ball_pos, 240, 0, Draw.Color(200, 255, 87, 51)) 
-	
-		--Draw.Circle(ball_pos, 310, 0, Draw.Color(200, 255, 87, 51)) 
 
-		if GotBuff(myHero, "orianaghostself") == 0 and Saga.Drawings.ballDraw.BallW:Value() then
-			Draw.Circle(ball_pos, 240, 0, Draw.Color(200, 255, 87, 51)) end
-		if GotBuff(myHero, "orianaghostself") == 0 and Saga.Drawings.ballDraw.BallR:Value() then
-			Draw.Circle(ball_pos, 310, 0, Draw.Color(200, 255, 87, 51)) end
-		
-	if Saga.Drawings.Q.Enabled:Value() then Draw.Circle(myHero.pos, Q.Range, 0, Saga.Drawings.Q.Color:Value()) end
-	if Saga.Drawings.E.Enabled:Value() then Draw.Circle(myHero.pos, E.Range, 0, Saga.Drawings.E.Color:Value()) end
-	end)
-	
-
-	
 
 
 
@@ -1374,12 +1358,42 @@ end
 end 
 
 
+LocalCallbackAdd("Draw", function()
+	
+	--Draw.Circle(ball_pos, 240, 0, Draw.Color(200, 255, 87, 51)) 
 
+	--Draw.Circle(ball_pos, 310, 0, Draw.Color(200, 255, 87, 51)) 
+
+	if GotBuff(myHero, "orianaghostself") == 0 and Saga.Drawings.ballDraw.BallW:Value() then
+		Draw.Circle(ball_pos, 240, 0, Draw.Color(200, 255, 87, 51)) end
+	if GotBuff(myHero, "orianaghostself") == 0 and Saga.Drawings.ballDraw.BallR:Value() then
+		Draw.Circle(ball_pos, 310, 0, Draw.Color(200, 255, 87, 51)) end
+	
+if Saga.Drawings.Q.Enabled:Value() then Draw.Circle(myHero.pos, Q.Range, 0, Saga.Drawings.Q.Color:Value()) end
+if Saga.Drawings.E.Enabled:Value() then Draw.Circle(myHero.pos, E.Range, 0, Saga.Drawings.E.Color:Value()) end
+
+
+
+for i= 1, TotalHeroes do
+	local hero = _EnemyHeroes[i]
+	if hero then
+	if not hero.dead and hero.pos2D.onScreen and hero.visible then
+		local dmg = GetComboDamage(hero)
+		if dmg > hero.health then
+			Draw.Text("KILL NOW", 30, hero.pos2D.x - 50, hero.pos2D.y + 50,Draw.Color(200, 255, 87, 51))				
+		else
+			Draw.Text("Harass Me", 30, hero.pos2D.x - 50, hero.pos2D.y + 50,Draw.Color(200, 255, 87, 51))
+		end
+		end 	
+		end
+	end
+
+end)
 
 Saga_Menu =
 function()
 	Saga = MenuElement({type = MENU, id = "Orianna", name = "Saga's Orianna: Balls of Fury", icon = AIOIcon})
-	MenuElement({ id = "blank", type = SPACE ,name = "Version 3.2.1"})
+	MenuElement({ id = "blank", type = SPACE ,name = "Version 3.2.2"})
 	--Combo
 	Saga:MenuElement({id = "Combo", name = "Combo", type = MENU})
 	Saga.Combo:MenuElement({id = "UseQ", name = "Q", value = true})
