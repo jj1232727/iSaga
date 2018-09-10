@@ -14,7 +14,7 @@ Data = {
         },
         Irelia = {
             Changelog = "E Fix",
-            Version = "2.7.7",
+            Version = "2.7.8",
         },
         Jinx = {
             Changelog = "W Fix",
@@ -26,7 +26,7 @@ Data = {
         },
         Karthus = {
             Changelog = "E Fix",
-            Version = "1.3.1",
+            Version = "1.3.2",
         },
         Katarina = {
             Changelog = "Dagger Fix",
@@ -42,7 +42,7 @@ Data = {
         },
         Orianna = {
             Changelog = "Orianna Auto Usage",
-            Version = "3.2.0",
+            Version = "3.2.1",
         },
         Syndra = {
             Changelog = "Prediction Tweaks",

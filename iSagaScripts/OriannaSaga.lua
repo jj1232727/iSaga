@@ -1379,7 +1379,7 @@ end
 Saga_Menu =
 function()
 	Saga = MenuElement({type = MENU, id = "Orianna", name = "Saga's Orianna: Balls of Fury", icon = AIOIcon})
-	MenuElement({ id = "blank", type = SPACE ,name = "Version 3.2.0"})
+	MenuElement({ id = "blank", type = SPACE ,name = "Version 3.2.1"})
 	--Combo
 	Saga:MenuElement({id = "Combo", name = "Combo", type = MENU})
 	Saga.Combo:MenuElement({id = "UseQ", name = "Q", value = true})
