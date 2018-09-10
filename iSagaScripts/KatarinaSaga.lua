@@ -623,7 +623,7 @@ LocalCallbackAdd("Tick", function()
         for i= 1, TotalHeroes do
             local hero = _EnemyHeroes[i]
 			local barPos = hero.hpBar
-			if not hero.dead and hero.pos2D.onScreen and barPos.onScreen and hero.visible then
+			if not hero.dead and hero.pos2D.onScreen and hero.visible then
 				local QDamage = Game.CanUseSpell(0) == 0 and GetDamage(HK_Q,hero) or 0
 				local WDamage = Game.CanUseSpell(1) == 0 and GetDamage(HK_W,hero) or 0
 				local EDamage = Game.CanUseSpell(2) == 0 and GetDamage(HK_E,hero) or 0
@@ -1291,7 +1291,7 @@ end
 Saga_Menu = 
 function()
 	Saga = MenuElement({type = MENU, id = "Katarina", name = "Saga's Katarina: Shump on These Nuts", icon = AIOIcon})
-	MenuElement({ id = "blank", type = SPACE ,name = "Version 3.1.1"})
+	MenuElement({ id = "blank", type = SPACE ,name = "Version 3.1.2"})
 	--Combo
 	Saga:MenuElement({id = "Combo", name = "Combo", type = MENU})
 	Saga.Combo:MenuElement({id = "UseQ", name = "Q", value = true})

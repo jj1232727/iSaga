@@ -19,7 +19,7 @@ Data = {
         },
         Katarina = {
             Changelog = "Dagger Fix",
-            Version = "3.1.1",
+            Version = "3.1.2",
         },
         Karthus = {
             Changelog = "E Fix",
