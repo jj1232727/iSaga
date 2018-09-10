@@ -31,7 +31,7 @@ local ignitecast
 local eStun = 0
 local igniteslot
 local ECast = false
-local HKITEM = { [ITEM_1] = 49, [ITEM_2] = 50, [ITEM_3] = 51, [ITEM_4] = 52, [ITEM_5] = 53, [ITEM_6] = 54 }
+local HKITEM = { [ITEM_1] = 49, [ITEM_2] = 50, [ITEM_3] = 51, [ITEM_4] = 53, [ITEM_5] = 54, [ITEM_6] = 55 }
 local visionTick = 0
 local wClock = 0
 local settime = 0
@@ -519,7 +519,7 @@ SIGroup = function(target)
 	if target then
 		if Bilge  and myHero:GetSpellData(Bilge).currentCd == 0  and myHero.pos:DistanceTo(target.pos) < 550 then
 			Control.CastSpell(HKITEM[Bilge], target.pos)
-		end
+        end
 		
 		
 		local Tiamat = items[3077] or items[3748] or items[3074]
@@ -735,15 +735,16 @@ LocalCallbackAdd("Tick", function()
 
         for i= 1, TotalHeroes do
             local hero = _EnemyHeroes[i]
-			local barPos = hero.hpBar
-			if not hero.dead and hero.pos2D.onScreen and barPos.onScreen and hero.visible then
+			if not hero.dead and hero.pos2D.onScreen and hero.visible then
 				local QDamage = Game.CanUseSpell(0) == 0 and GetDamage(HK_Q,hero) or 0
 				local WDamage = Game.CanUseSpell(1) == 0 and GetDamage(HK_W,hero) or 0
 				local EDamage = Game.CanUseSpell(2) == 0 and GetDamage(HK_E,hero) or 0
 				local RDamage = Game.CanUseSpell(3) == 0 and GetDamage(HK_R,hero) or 0
-                local damage = QDamage + WDamage + RDamage + EDamage
+                local damage = QDamage + WDamage + RDamage + EDamage + ComboAA(hero)
 				if damage > hero.health then
-					Draw.Text("KILL NOW", 30, hero.pos2D.x - 50, hero.pos2D.y + 50,Draw.Color(200, 255, 87, 51))				
+                    Draw.Text("KILL NOW", 30, hero.pos2D.x - 50, hero.pos2D.y + 50,Draw.Color(200, 255, 87, 51))
+                else
+                    Draw.Text("HARASS", 30, hero.pos2D.x - 50, hero.pos2D.y + 50,Draw.Color(200, 255, 87, 51))		
                 end
 				end
 				end
@@ -1169,11 +1170,27 @@ function CastR(unit)
 	end
 end
 
+ComboAA = function(target)
+    local AAdmg = CalcPhysicalDamage(myHero,target,(myHero.totalDamage + (myHero.bonusDamage * .16)))
+    if myHero.attackSpeed >= 2.5 then
+        return AAdmg * 5
+    elseif myHero.attackSpeed >= 2 then
+        return AAdmg * 4
+    elseif myHero.attackSpeed >= 1.5 then
+        return AAdmg * 3
+    elseif myHero.attackSpeed >= 1 then
+        return AAdmg * 2
+    else
+        return AAdmg
+    end
+end
+
 function GetDamage(spell, unit)
     local damage = 0
     local AD = myHero.totalDamage
 	local AP = myHero.ap
-	
+    
+    local AA = ComboAA(unit)
 
 
     if spell == HK_Q then
@@ -1193,10 +1210,11 @@ function GetDamage(spell, unit)
         end
 
     end
-    return damage
+    return damage + AA
 end
 
 GetFullDamage = function(hero)
+    
     local QDamage = Game.CanUseSpell(0) == 0 and GetDamage(HK_Q,hero) or 0
 	local WDamage = Game.CanUseSpell(1) == 0 and GetDamage(HK_W,hero) or 0
 	local EDamage = Game.CanUseSpell(2) == 0 and GetDamage(HK_E,hero) or 0
@@ -1258,9 +1276,9 @@ Combo =  function()
     ----------------------
     
     if Saga.TS.cTS:Value() then
-        targetW = GetTarget2(Q.Range)
+        targetW = GetTarget2(W.Range)
     else
-        targetW = GetTarget(Q.Range)
+        targetW = GetTarget(W.Range)
     end
     if targetW and Saga.Combo.UseW:Value() then
         if Game.CanUseSpell(0) ~= 0 and Game.CanUseSpell(2) ~= 0 and myHero:GetSpellData(_E).name == "IreliaE" then
@@ -1308,8 +1326,9 @@ function Harass()
             end
 		end
 
-		if Saga.Harass.UseW:Value() then
-			CastW(target)
+		if target and Saga.Combo.UseW:Value() then
+            if Game.CanUseSpell(0) ~= 0 and Game.CanUseSpell(2) ~= 0 and myHero:GetSpellData(_E).name == "IreliaE" then
+            CastW(target) end
         end
 
         if Saga.Harass.UseE:Value() and not myHero.pathing.isDashing then

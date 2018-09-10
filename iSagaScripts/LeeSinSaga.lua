@@ -1493,7 +1493,7 @@ end
 checkItems = function()
 	local items = {}
 	for slot = ITEM_1,ITEM_6 do
-		local id = myHero:GetItemData(slot).itemID 
+        local id = myHero:GetItemData(slot).itemID
 		if id > 0 then
 			items[id] = slot
 		end

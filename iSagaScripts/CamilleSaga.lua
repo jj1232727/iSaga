@@ -37,7 +37,6 @@ local HKITEM = { [ITEM_1] = 49, [ITEM_2] = 50, [ITEM_3] = 51, [ITEM_4] = 53, [IT
 local QCast = 0
 local ignitecast
 local igniteslot
-local myOrb
 
 
 require "MapPosition"
@@ -525,29 +524,28 @@ end
 GetTarget = function(range)
 
 	if SagaOrb == 1 then
-		if myHero.ap > myHero.totalDamage then
-			return EOW:GetTarget(range, EOW.ap_dec, myHero.pos)
+		if Camille.ap > Camille.totalDamage then
+			return EOW:GetTarget(range, EOW.ap_dec, Camille.pos)
 		else
-			return EOW:GetTarget(range, EOW.ad_dec, myHero.pos)
+			return EOW:GetTarget(range, EOW.ad_dec, Camille.pos)
 		end
 	elseif SagaOrb == 2 and SagaSDKSelector then
-		if myHero.ap > myHero.totalDamage then
+		if Camille.ap > Camille.totalDamage then
 			return SagaSDKSelector:GetTarget(range, SagaSDKMagicDamage)
 		else
 			return SagaSDKSelector:GetTarget(range, SagaSDKPhysicalDamage)
         end
-        
-    elseif SagaOrb == 4 then
-        return myOrb:GetOrbTarget(range)
-	elseif _G.GOS then
-		if myHero.ap > myHero.totalDamage then
+    elseif _G.GOS then
+		if Camille.ap > Camille.totalDamage then
 			return GOS:GetTarget(range, "AP")
 		else
 			return GOS:GetTarget(range, "AD")
         end
-    end
+    elseif _G.__gsoSDK then
+        local enemyHeroes_ADdmg = __gsoOB:GetEnemyHeroes(range, false, "attack")
+        return __TS:GetTarget(enemyHeroes_ADdmg)
+	end
 end
-
 
 GetImmobileTime = function(unit)
     local duration = 0
@@ -843,10 +841,7 @@ if Game.Timer() > Saga.Rate.champion:Value() and #_EnemyHeroes == 0 then
         end
     end
 end
-if _G.TNS then
-    SagaOrb = 4
-    myOrb = _G.TNSOrbWalker
-elseif _G.EOWLoaded then
+if _G.EOWLoaded then
     SagaOrb = 1
 elseif _G.SDK and _G.SDK.Orbwalker then
     SagaOrb = 2
@@ -879,7 +874,8 @@ elseif  SagaOrb == 2 then
     SagaSDKSelector = SDK.TargetSelector
     SagaSDKMagicDamage = _G.SDK.DAMAGE_TYPE_MAGICAL
     SagaSDKPhysicalDamage = _G.SDK.DAMAGE_TYPE_PHYSICAL
-elseif  SagaOrb == 4 then
+elseif  SagaOrb == 3 then
+   
 end
 end)
 
@@ -913,35 +909,35 @@ end
 
 
 GetOrbMode = function()
-    if SagaOrb == 1 then
-        if Sagacombo == 1 then
-            return 'Combo'
-        elseif Sagaharass == 2 then
-            return 'Harass'
-        elseif SagalastHit == 3 then
-            return 'Lasthit'
-        elseif SagalaneClear == 4 then
-            return 'Clear'
-        end
-    elseif SagaOrb == 2 then
-        SagaSDKModes = SDK.Orbwalker.Modes
-        if SagaSDKModes[SagaSDKCombo] then
-            return 'Combo'
-        elseif SagaSDKModes[SagaSDKHarass] then
-            return 'Harass'
-        elseif SagaSDKModes[SagaSDKLaneClear] or SagaSDKModes[SagaSDKJungleClear] then
-            return 'Clear'
-        elseif SagaSDKModes[SagaSDKLastHit] then
-            return 'Lasthit'
-        elseif SagaSDKModes[SagaSDKFlee] then
-            return 'Flee'
-        end
-    elseif SagaOrb == 3 then
-        return GOS:GetMode()
-    elseif SagaOrb == 4 then
-         return myOrb:Mode()
-    end
- end
+   if SagaOrb == 1 then
+       if Sagacombo == 1 then
+           return 'Combo'
+       elseif Sagaharass == 2 then
+           return 'Harass'
+       elseif SagalastHit == 3 then
+           return 'Lasthit'
+       elseif SagalaneClear == 4 then
+           return 'Clear'
+       end
+   elseif SagaOrb == 2 then
+       SagaSDKModes = SDK.Orbwalker.Modes
+       if SagaSDKModes[SagaSDKCombo] then
+           return 'Combo'
+       elseif SagaSDKModes[SagaSDKHarass] then
+           return 'Harass'
+       elseif SagaSDKModes[SagaSDKLaneClear] or SagaSDKModes[SagaSDKJungleClear] then
+           return 'Clear'
+       elseif SagaSDKModes[SagaSDKLastHit] then
+           return 'Lasthit'
+       elseif SagaSDKModes[SagaSDKFlee] then
+           return 'Flee'
+       end
+   elseif SagaOrb == 3 then
+       return GOS:GetMode()
+   elseif SagaOrb == 4 then
+        return __gsoOrbwalker.GetMode()
+   end
+end
 
 
 
@@ -1035,7 +1031,7 @@ LocalCallbackAdd("Tick", function()
 
 Combo = function()
 target  = GetTarget(2000)
-if target and validTarget(target)then
+if target then
     SIGroup(target)
     CastBurst(target)
 end
@@ -1056,7 +1052,7 @@ CastBurst = function(target)
     for i=0, 15 do
         local pos = RotateAroundPoint(myHero.pos + Vector(0,0,800), myHero.pos, math.pi / 8 * i)
         local segment = LineSegment(Point(myHero.pos), Point(pos))
-        local aim = GetPred(target, 2000, .25)
+        local aim = GetPred(target, 2000, .25 + Game.Latency()/1000)
         if GetDistance(myHero, aim) > 800 then
             aim = myHero.pos + (aim- myHero.pos):Normalized() * 800
         end
@@ -1089,7 +1085,7 @@ CastBurst = function(target)
 
         end
         if Saga.Combo.UseW:Value() and isCasting == false and Game.CanUseSpell(1) == 0 and Game.CanUseSpell(2) ~= 0 and target.pos:DistanceTo() < 800 then
-            local aim2 = GetPred(target, 1500, .25)
+            local aim2 = GetPred(target, 1500, .25 + Game.Latency()/1000)
             CastSpell(HK_W, aim2)
             isCastingW = os.clock()
         end
@@ -1114,7 +1110,7 @@ end
 
 Harass = function()
     target = GetTarget(1000)
-    if target and validTarget(target) then
+    if target then
     if Saga.Harass.UseW:Value() and Game.CanUseSpell(1) == 0 and target.pos:DistanceTo() < 800 then
         local aim2 = GetPred(target, 1500, .25 + Game.Latency()/1000)
         CastSpell(HK_W, aim2)
@@ -1140,31 +1136,6 @@ Clear = function()
                 Control.CastSpell(HK_W, minion.pos)
             end
         end
-
-        if minion.team == 300 and minion then
-            if not minion.dead and minion.visible and minion.isTargetable then
-                if Saga.Clear.UseW:Value() and GetDistanceSqr(myHero, minion) < 700 * 700 and Game.CanUseSpell(1) == 0 then
-                    Control.CastSpell(HK_W, minion.pos)
-                end
-
-                if GotBuff(myHero, "camillewconeslashcharge") == 1 then
-                    local spot = minion:GetPrediction(math.huge, 0.2):Extended(myHero.pos, ((610 + 610)/3) + 100)
-                    Control.Move(spot)
-                    end
-
-                if  myHero:GetSpellData(_Q).name == "CamilleQ" and os.clock() - QCast > 2.5 and Saga.Clear.UseQ:Value() and Game.CanUseSpell(0) == 0 and minion.pos:DistanceTo() < 300 then
-                    Control.CastSpell(HK_Q)
-                    ResetAutoAttack()
-                    QCast = os.clock()
-                end
-                
-                if  GotBuff(myHero, "camilleqprimingcomplete") == 1 and Saga.Clear.UseQ:Value() and Game.CanUseSpell(0) == 0 and minion.pos:DistanceTo() < 300 then
-                    Control.CastSpell(HK_Q)
-                    ResetAutoAttack()
-                end
-            end
-        end
-
     end
 end
 
@@ -1192,7 +1163,7 @@ SIGroup = function(target)
 		
 		
 		local tmt = items[3077] or items[3748] or items[3074]
-		if tmt and Saga.items.tm:Value() and myHero:GetSpellData(tmt).currentCd == 0  and myHero.pos:DistanceTo(target.pos) < 400 then
+		if tmt and Saga.items.tm:Value() and myHero:GetSpellData(tmt).currentCd == 0  and myHero.pos:DistanceTo(target.pos) < 400 and myHero.attackData.state == 2 then
 			Control.CastSpell(HKITEM[tmt], target.pos)
 		end
 
@@ -1683,7 +1654,7 @@ end
 Saga_Menu = 
 function()
 	Saga = MenuElement({type = MENU, id = "Camille", name = "Saga's Camille: She will butch your meat", icon = AIOIcon})
-	MenuElement({ id = "blank", type = SPACE ,name = "Version BETA 1.1.1"})
+	MenuElement({ id = "blank", type = SPACE ,name = "Version BETA 1.0.4"})
 	--Combo
 	Saga:MenuElement({id = "Combo", name = "Combo", type = MENU})
     Saga.Combo:MenuElement({id = "UseQ", name = "Q", value = true})

@@ -25,7 +25,6 @@ local TotalHeroes
 local LocalCallbackAdd = Callback.Add
 local _OnVision = {}
 local visionTick = 0
-local myOrb
 
 
 local isEvading = ExtLibEvade and ExtLibEvade.Evading
@@ -137,27 +136,24 @@ end
 GetTarget = function(range)
 
 	if SagaOrb == 1 then
-		if myHero.ap > myHero.totalDamage then
-			return EOW:GetTarget(range, EOW.ap_dec, myHero.pos)
+		if kaisa.ap > kaisa.totalDamage then
+			return EOW:GetTarget(range, EOW.ap_dec, kaisa.pos)
 		else
-			return EOW:GetTarget(range, EOW.ad_dec, myHero.pos)
+			return EOW:GetTarget(range, EOW.ad_dec, kaisa.pos)
 		end
 	elseif SagaOrb == 2 and SagaSDKSelector then
-		if myHero.ap > myHero.totalDamage then
+		if kaisa.ap > kaisa.totalDamage then
 			return SagaSDKSelector:GetTarget(range, SagaSDKMagicDamage)
 		else
 			return SagaSDKSelector:GetTarget(range, SagaSDKPhysicalDamage)
-        end
-        
-    elseif SagaOrb == 4 then
-        return myOrb:GetOrbTarget(range)
+		end
 	elseif _G.GOS then
-		if myHero.ap > myHero.totalDamage then
+		if kaisa.ap > kaisa.totalDamage then
 			return GOS:GetTarget(range, "AP")
 		else
 			return GOS:GetTarget(range, "AD")
-        end
-    end
+		end
+	end
 end
 
 GetPathNodes = function(unit)
@@ -358,44 +354,43 @@ end
 
 LocalCallbackAdd("Load", function()
 TotalHeroes = GetEnemyHeroes()
-if _G.TNS then
-    SagaOrb = 4
-    myOrb = _G.TNSOrbWalker
-elseif _G.EOWLoaded then
+
+if _G.EOWLoaded then
     SagaOrb = 1
 elseif _G.SDK and _G.SDK.Orbwalker then
     SagaOrb = 2
 elseif _G.GOS then
     SagaOrb = 3
---[[elseif __gsoSDK then
-    SagaOrb = 4]]--
+elseif _G.gsoSDK then
+    SagaOrb = 4
 end
 
 if  SagaOrb == 1 then
-   local mode = EOW:Mode()
-
-   Sagacombo = mode == 1
-   Sagaharass = mode == 2
-   SagalastHit = mode == 3
-   SagalaneClear = mode == 4
-   SagajungleClear = mode == 4
-
-   Sagacanmove = EOW:CanMove()
-   Sagacanattack = EOW:CanAttack()
-elseif  SagaOrb == 2 then
-    SagaSDK = SDK.Orbwalker
-    SagaSDKCombo = SDK.ORBWALKER_MODE_COMBO
-    SagaSDKHarass = SDK.ORBWALKER_MODE_HARASS
-    SagaSDKJungleClear = SDK.ORBWALKER_MODE_JUNGLECLEAR
-    SagaSDKJungleClear = SDK.ORBWALKER_MODE_JUNGLECLEAR
-    SagaSDKLaneClear = SDK.ORBWALKER_MODE_LANECLEAR
-    SagaSDKLastHit = SDK.ORBWALKER_MODE_LASTHIT
-    SagaSDKFlee = SDK.ORBWALKER_MODE_FLEE
-    SagaSDKSelector = SDK.TargetSelector
-    SagaSDKMagicDamage = _G.SDK.DAMAGE_TYPE_MAGICAL
-    SagaSDKPhysicalDamage = _G.SDK.DAMAGE_TYPE_PHYSICAL
-elseif  SagaOrb == 4 then
-end
+    local mode = EOW:Mode()
+ 
+    Sagacombo = mode == 1
+    Sagaharass = mode == 2
+    SagalastHit = mode == 3
+    SagalaneClear = mode == 4
+    SagajungleClear = mode == 4
+ 
+    Sagacanmove = EOW:CanMove()
+    Sagacanattack = EOW:CanAttack()
+ elseif  SagaOrb == 2 then
+     SagaSDK = SDK.Orbwalker
+     SagaSDKCombo = SDK.ORBWALKER_MODE_COMBO
+     SagaSDKHarass = SDK.ORBWALKER_MODE_HARASS
+     SagaSDKJungleClear = SDK.ORBWALKER_MODE_JUNGLECLEAR
+     SagaSDKJungleClear = SDK.ORBWALKER_MODE_JUNGLECLEAR
+     SagaSDKLaneClear = SDK.ORBWALKER_MODE_LANECLEAR
+     SagaSDKLastHit = SDK.ORBWALKER_MODE_LASTHIT
+     SagaSDKFlee = SDK.ORBWALKER_MODE_FLEE
+     SagaSDKSelector = SDK.TargetSelector
+     SagaSDKMagicDamage = _G.SDK.DAMAGE_TYPE_MAGICAL
+     SagaSDKPhysicalDamage = _G.SDK.DAMAGE_TYPE_PHYSICAL
+ elseif  SagaOrb == 3 then
+    
+ end
  end)
 
 --LocalCallbackAdd("Tick", function() orb = GetOrbMode() end)
@@ -411,9 +406,7 @@ DisableMovement = function(bool)
 	elseif SagaOrb == 1 then
 		EOW:SetMovements(not bool)
 	elseif SagaOrb == 3 then
-        GOS.BlockMovement = bool
-    elseif SagaOrb == 4 then
-        myOrb:DisableMovements(bool)
+		GOS.BlockMovement = bool
 	end
 end
 
@@ -424,9 +417,7 @@ DisableAttacks = function(bool)
 	elseif SagaOrb == 1 then
 		EOW:SetAttacks(not bool)
 	elseif SagaOrb == 3 then
-        GOS.BlockAttack = bool
-    elseif SagaOrb == 4 then
-        myOrb:DisableAttacks(bool)
+		GOS.BlockAttack = bool
 	end
 end
 
@@ -458,7 +449,7 @@ GetOrbMode = function()
     elseif SagaOrb == 3 then
         return GOS:GetMode()
     elseif SagaOrb == 4 then
-         return myOrb:Mode()
+         return _G.gsoSDK.Orbwalker:GetMode()
     end
  end
 
@@ -645,44 +636,38 @@ function OnTick()
     
 end
 
---3147
-
 function Combo()
-    if GotBuff(myHero,"KaisaE") == 1 then return end
     local target = GetTarget(Q.Range)
     local target2 = GetTarget(W.Range)
     local target3 = GetTarget(530)
     
     if validTarget(target) then
-        SIGroup(target)
-        if Saga.Combo.UseQ:Value() and kaisa.pos:DistanceTo(target.pos) <= Q.Range and ItsReadyDumbAss(0) == 0 then
+        
+        if kaisa.pos:DistanceTo(target.pos) <= Q.Range and ItsReadyDumbAss(0) == 0 then
             CastItDumbFuk(HK_Q)
         end
     end
 
     
     if validTarget(target2) then 
-        if Saga.Combo.UseW:Value() and kaisa.pos:DistanceTo(target2.pos) <= W.Range then
+        if kaisa.pos:DistanceTo(target2.pos) <= W.Range then
         --local t, aim = GetHitchance(kaisa.pos, target2 , W.Range, W.Delay, W.Speed, W.Width)
             local aim = GetPred(target2,math.huge,0.25 + Game.Latency()/1000)
             if aim and minionCollision(target2, kaisa.pos, aim)  == 0 then
                 if ItsReadyDumbAss(1) == 0 and aim:To2D().onScreen then
-                    if SagaOrb == 4 then
-                        CastItDumbFuk(HK_W, aim)
-                    else
-                        CastSpell(HK_W, aim, W.Range, W.Delay * 1000)
-                    end
+                    CastSpell(HK_W, aim, W.Range, W.Delay * 1000)
+                else 
+                    CastItBlindFuck(HK_W, aim, W.Range, W.Delay * 1000)
                 end
             end
         end
     end
 
     if validTarget(target3) then 
-        if Saga.Combo.UseE:Value() and kaisa.pos:DistanceTo(target3.pos) <= 525 and ItsReadyDumbAss(2) == 0 then
+        if kaisa.pos:DistanceTo(target3.pos) <= 525 and ItsReadyDumbAss(2) == 0 then
             CastItDumbFuk(HK_E)
         end
     end
-    
 end
 
 function Harass()
@@ -691,25 +676,21 @@ function Harass()
     
     if validTarget(target) then
         
-        if Saga.Harass.UseQ:Value() and kaisa.pos:DistanceTo(target.pos) <= Q.Range and ItsReadyDumbAss(0) == 0 then
-            
+        if kaisa.pos:DistanceTo(target.pos) <= Q.Range and ItsReadyDumbAss(0) == 0 then
             CastItDumbFuk(HK_Q)
         end
     end
 
-
     
     if validTarget(target2) then 
-        if Saga.Harass.UseW:Value() and kaisa.pos:DistanceTo(target2.pos) <= W.Range and Game.CanUseSpell(1) == 0  then
+        if kaisa.pos:DistanceTo(target2.pos) <= W.Range then
         --local t, aim = GetHitchance(kaisa.pos, target2 , W.Range, W.Delay, W.Speed, W.Width)
-            local aim = GetPred(target2,math.huge,W.Delay + Game.Latency()/1000)
+            local aim = GetPred(target2,math.huge,0.25 + Game.Latency()/1000)
             if aim and minionCollision(target2, kaisa.pos, aim)  == 0 then
-                if aim:To2D().onScreen then
-                    if SagaOrb == 4 then
-                        CastItDumbFuk(HK_W, aim)
-                    else
-                        CastSpell(HK_W, aim, W.Range, W.Delay * 1000)
-                    end
+                if ItsReadyDumbAss(1) == 0 and aim:To2D().onScreen then
+                    CastSpell(HK_W, aim, W.Range, W.Delay * 1000)
+                else 
+                    CastItBlindFuck(HK_W, aim, W.Range, W.Delay * 1000)
                 end
             end
         end
@@ -717,41 +698,11 @@ function Harass()
 end
 
 function LaneClear()
-    if not Saga.Clear.UseQ2:Value() then
-        for i = SagaMCount(), 1, -1 do 
-            local minion = SagasBitch(i)
-            if minion.isTargetable and minion.team == TEAM_ENEMY and minion.dead == false then
-                if Game.CanUseSpell(0) == 0 and minion.DistanceTo() < Q.Range and not Saga.Clear.UseQ2 then
-                    Control.CastSpell(HK_Q)
-                end
-            end
-        end
-    end
-    if Saga.Clear.UseQ2:Value() then
-        target = GetTarget(Q.Range)
-        if validTarget(target) then
-        
-            if kaisa.pos:DistanceTo(target.pos) <= Q.Range and ItsReadyDumbAss(0) == 0 then
-                CastItDumbFuk(HK_Q)
-            end
-        end
-    end
-
-    if Saga.Clear.UseW:Value() then
-        local target2 = GetTarget(Q.Range)
-        if validTarget(target2) then 
-            if Saga.Clear.UseW:Value() and kaisa.pos:DistanceTo(target2.pos) <= W.Range and Game.CanUseSpell(1) == 0  then
-            --local t, aim = GetHitchance(kaisa.pos, target2 , W.Range, W.Delay, W.Speed, W.Width)
-                local aim = GetPred(target2,math.huge,0.25 + Game.Latency()/1000)
-                if aim and minionCollision(target2, kaisa.pos, aim)  == 0 then
-                    if aim:To2D().onScreen then
-                        if SagaOrb == 4 then
-                            CastItDumbFuk(HK_W, aim)
-                        else
-                            CastSpell(HK_W, aim, W.Range, W.Delay * 1000)
-                        end
-                    end
-                end
+    for i = SagaMCount(), 1, -1 do 
+        local minion = SagasBitch(i)
+        if minion.isTargetable and minion.team == TEAM_ENEMY and minion.dead == false then
+            if Game.CanUseSpell(0) == 0 then
+                Control.CastSpell(HK_Q)
             end
         end
     end
@@ -760,69 +711,14 @@ end
 function Flee()
     local target = GetTarget(Q.Range)
     if target then 
-        if Saga.Flee.UseE:Value() and Game.CanUseSpell(2) == 0  and kaisa.pos:DistanceTo(target.pos) <= 530 then
+        if Game.CanUseSpell(2) == 0  and kaisa.pos:DistanceTo(target.pos) <= Q.Range then
             Control.CastSpell(HK_E)
         end
     end
 end 
 
-local HKITEM = { [ITEM_1] = 49, [ITEM_2] = 50, [ITEM_3] = 51, [ITEM_4] = 53, [ITEM_5] = 54, [ITEM_6] = 55, [ITEM_7] = 52}
-
-checkItems = function()
-	local items = {}
-	for slot = ITEM_1,ITEM_6 do
-		local id = myHero:GetItemData(slot).itemID 
-		if id > 0 then
-			items[id] = slot
-		end
-	end
-	return items
-end
-
-SIGroup = function(target)
-	local items = checkItems()
-	local bg = items[3144] or items[3153]
-    if target then
-		if bg and Saga.items.bg:Value() and myHero:GetSpellData(bg).currentCd == 0  and target.pos:DistanceTo() < 550 then
-            Control.CastSpell(HKITEM[bg], target.pos)
-		end
-		
-		
-		
-
-	end
-
-end
-
-    Saga = MenuElement({type = MENU, id = "Kaisa", name = "Kaisa - Plasma Hentai Instead of Tencticles", icon = AIOIcon})
-	MenuElement({ id = "blank", type = SPACE ,name = "BETA Version 1.0.2"})
-    
-    Saga:MenuElement({id = "Combo", name = "Combo", type = MENU})
-    Saga.Combo:MenuElement({id = "UseQ", name = "Q", value = true})
-    Saga.Combo:MenuElement({id = "UseW", name = "W", value = true})
-	Saga.Combo:MenuElement({id = "UseE", name = "E", value = true})
-
-	Saga:MenuElement({id = "Harass", name = "Harass", type = MENU})
-    Saga.Harass:MenuElement({id = "UseQ", name = "Q", value = true})
-    Saga.Harass:MenuElement({id = "UseW", name = "W", value = true})
-
-    
-	Saga:MenuElement({id = "Clear", name = "Clear", type = MENU})
-    Saga.Clear:MenuElement({id = "UseQ", name = "Q", value = true})
-    Saga.Clear:MenuElement({id = "UseQ2", name = "Q Champs Only", value = true})
-    Saga.Clear:MenuElement({id = "UseW", name = "W on Champs", value = true})
-
-    Saga:MenuElement({id = "Flee", name = "Flee", type = MENU})
-    Saga.Flee:MenuElement({id = "UseE", name = "E", value = true})
-
-    Saga:MenuElement({id = "items", name = "UseItems", type = MENU})
-	Saga.items:MenuElement({id = "bg", name = "Use Cutlass/Botrk", value = true})
-    
-
-    
-    Saga:MenuElement({id = "Rate", name = "Recache Rate", type = MENU})
-	Saga.Rate:MenuElement({id = "champion", name = "Value", value = 30, min = 1, max = 120, step = 1})
-
+    Saga = MenuElement({type = MENU, id = "Kaisa", name = "Kaisa Personal Script for ShaperShifter", icon = AIOIcon})
+	MenuElement({ id = "blank", type = SPACE ,name = "Version 2.0.0"})
     Saga:MenuElement({id = "Drawings", name = "Drawings", type = MENU})
     Saga.Drawings:MenuElement({id = "Q", name = "Draw Q range", type = MENU})
     Saga.Drawings.Q:MenuElement({id = "Enabled", name = "Enabled", value = true})       

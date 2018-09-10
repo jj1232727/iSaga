@@ -705,9 +705,8 @@ end
 
 for i= 1, TotalHeroes do
 	local hero = _EnemyHeroes[i]
-	local barPos = hero.hpBar
 	if hero then
-	if not hero.dead and hero.pos2D.onScreen and barPos.onScreen and hero.visible then
+	if not hero.dead and hero.pos2D.onScreen and hero.visible then
 		local dmg = ComboDamage(hero)
 		if dmg > hero.health then
 			Draw.Text("KILL NOW", 30, hero.pos2D.x - 50, hero.pos2D.y + 50,Draw.Color(200, 255, 87, 51))				
@@ -898,7 +897,7 @@ end
 
 CastQ = function(target)
 	if Game.CanUseSpell(0) == 0 and castSpell.state == 0 then
-        if target.pos:DistanceTo() < Q.range and (Game.Timer() - OnWaypoint(target).time < 0.15 or Game.Timer() - OnWaypoint(target).time > 1.0) then
+        if target.pos:DistanceTo() < Q.range then
             local qPred = GetPred(target,Q.speed,Q.delay + Game.Latency()/1000)
             CastSpell(HK_Q,qPred,Q.range + 200,250)
         end
@@ -907,7 +906,7 @@ end
 
 CastQS = function(target, shadowt)
 	if Game.CanUseSpell(0) == 0 and castSpell.state == 0 then
-        if target.pos:DistanceTo(shadowt) < Q.range and (Game.Timer() - OnWaypoint(target).time < 0.15 or Game.Timer() - OnWaypoint(target).time > 1.0) then
+        if target.pos:DistanceTo(shadowt) < Q.range  then
             local qPred = GetPred(target,Q.speed,Q.delay + Game.Latency()/1000, shadowt)
             CastSpell(HK_Q,qPred,Q.range + 200,250)
         end
@@ -916,11 +915,10 @@ end
 
  CastW = function(target)
 	if Game.CanUseSpell(1) == 0 and castSpell.state == 0 then
-        if (Game.Timer() - OnWaypoint(target).time < 0.15 or Game.Timer() - OnWaypoint(target).time > 1.0) then
             local wPred = GetPred(target,W.speed,W.delay + Game.Latency()/1000)
 			CastSpell(HK_W,wPred,W.range + 200,250)
 			shadow = wPred
-        end
+
 	end
 end
 
@@ -1089,7 +1087,7 @@ LastHit = function()
 		if minion then
 			if minion.isEnemy and minion.isTargetable and minion.visible and not minion.dead then
 				if  Saga.Lasthit.UseQ:Value() and Game.CanUseSpell(0) == 0 and QDmg(minion) > minion.health then 
-					CastSpell(HK_Q, minion, Q.Range, 250)
+					CastSpell(HK_Q, minion.pos, Q.Range, 250)
 				end
 			end
 		end
@@ -1099,7 +1097,7 @@ end
 Saga_Menu = 
 function()
 	Saga = MenuElement({type = MENU, id = "Zed", name = "Saga's Zed: The Unseen Blade"})
-	MenuElement({ id = "blank", type = SPACE ,name = "Version BETA 1.0.5"})
+	MenuElement({ id = "blank", type = SPACE ,name = "Version BETA 1.0.6"})
 	--Combo
     Saga:MenuElement({id = "Combo", name = "Combo", type = MENU})
     Saga.Combo:MenuElement({id = "UseQ", name = "Q", value = true})

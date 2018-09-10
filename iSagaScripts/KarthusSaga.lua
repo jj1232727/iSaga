@@ -720,13 +720,11 @@ LocalCallbackAdd(
     CastQ =  function(target)
         if target.pos:DistanceTo() < 875 and Game.CanUseSpell(0) == 0 and (Game.Timer() - OnWaypoint(target).time > 0.05) and (Game.Timer() - OnWaypoint(target).time < 0.20 or Game.Timer() - OnWaypoint(target).time > 1.25) then
             local aim = GetPred(target, 1500, .50 )
-            if aim and os.clock() - Qclock > .4 then
                 if aim:DistanceTo() > 875 then 
                     aim = myHero.pos + (aim - myHero.pos):Normalized()*875
                 end
                 Control.CastSpell(HK_Q, aim)
                 Qclock = os.clock()
-            end
         end
         if target.pos:DistanceTo() < myHero.range and os.clock() - AATimer >= .6 and Saga.Misc.sw:Value() then
         DisableAttacks(true)
@@ -1238,7 +1236,7 @@ end
 Saga_Menu =
 function()
 	Saga = MenuElement({type = MENU, id = "Karthus", name = "Saga's Karthus: The Dead Version Of Jafar", icon = AIOIcon})
-	MenuElement({ id = "blank", type = SPACE ,name = "Version BETA 1.3.1"})
+	MenuElement({ id = "blank", type = SPACE ,name = "Version BETA 1.3.2"})
 	--Combo
 	Saga:MenuElement({id = "Combo", name = "Combo", type = MENU})
     Saga.Combo:MenuElement({id = "UseQ", name = "Q", value = true})

@@ -661,6 +661,7 @@ AutoKSR = function()
 	if target and dmg > hp  and validTarget(target) then
 		local hitcount, hit = CheckEnemiesHitByR()
 		if hitcount >= 1 and Game.CanUseSpell(3) == 0 then
+			
 			Control.CastSpell(HK_R)
 		end
 	end
@@ -679,7 +680,7 @@ end
 AutoQ = function()
 	local target = GetTarget(Q.Range)
 	if target then 
-	if Game.CanUseSpell(0) == 0 and Saga.Combo.UseW:Value() then
+	if Game.CanUseSpell(0) == 0 and Saga.Combo.UseQ:Value() then
 		pos = GetBestCircularCastPos(Q, target, HER)
 		if Game.CanUseSpell(3) == 0 then
 		pos = GetBestCircularCastPos(R, target, HER)
@@ -709,7 +710,7 @@ AutoW = function()
 	end
 end
 
-AutoR = function()
+--[[AutoR = function()
 
 	local ER, HER = CheckEnemiesHitByR()
 	
@@ -725,7 +726,7 @@ AutoR = function()
 		if ER and ER >= Saga.Misc.RCount:Value() and Game.CanUseSpell(3) == 0 and Saga.Combo.UseR:Value() then
 			Control.CastSpell(HK_R)
 		end
-end
+end]]--
 
 combBreaker = function()
 	local target = GetTarget(Q.Range)
@@ -742,8 +743,10 @@ combBreaker = function()
 	
 	if ER > 0 and Saga.Combo.UseR:Value() then
 	local kills, pk = CheckPotentialKills(HER)
-	if kills >= Saga.Misc.RCountkills:Value() or pk >= Saga.Misc.RCountpot:Value() and Game.CanUseSpell(3) == 0 then
-		Control.CastSpell(HK_R)
+	if kills >= Saga.Misc.RCountkills:Value() or pk >= Saga.Misc.RCountpot:Value() then
+		if Game.CanUseSpell(3) == 0 then 
+			Control.CastSpell(HK_R)
+		end
 	end
 	end
 
@@ -766,7 +769,7 @@ combBreaker = function()
 	if GetDistance(ball_pos, target.pos) > GetDistance(hero.pos, target.pos) + 200 and Game.CanUseSpell(2) == 0 and hero and Saga.Combo.UseE:Value() then
 		Control.CastSpell(HK_E, hero)
 	end
-	if Game.CanUseSpell(0) == 0 and Saga.Combo.UseW:Value() then
+	if Game.CanUseSpell(0) == 0 and Saga.Combo.UseQ:Value() then
 		pos = GetBestCircularCastPos(Q, target, HER)
 		if Game.CanUseSpell(3) == 0 then
 		pos = GetBestCircularCastPos(R, target, HER)
@@ -799,7 +802,7 @@ end
 			if Saga.Harass.UseW:Value() and Game.CanUseSpell(1) == 0 then
 				pos = GetBestCastPosition(target, Q)
 				local Tar2Ball = GetDistanceSqr(ball_pos, pos) - target.boundingRadius * target.boundingRadius
-				if Tar2Ball < (W.Radius * W.Radius) then
+				if Tar2Ball < (W.Radius * W.Radius) and Game.CanUseSpell(1) == 0 then
 					Control.CastSpell(HK_W)
 				end
 			end
@@ -846,7 +849,7 @@ end
 					Control.CastSpell(HK_Q, BestPos) end
 		end
 
-		if Game.CanUseSpell(2) == 0 and Saga.Clear.UseW:Value() then
+		if Game.CanUseSpell(1) == 0 and Saga.Clear.UseW:Value() then
 			local number, minion = GetMinionsinRangeCount(ball_pos, W.Radius)
 			if number >= Saga.Clear.WCount:Value() then
 				Control.CastSpell(HK_W)
