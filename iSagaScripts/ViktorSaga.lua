@@ -843,7 +843,7 @@ LocalCallbackAdd(
         for i= 1, TotalHeroes do
             local hero = _EnemyHeroes[i]
 			local barPos = hero.hpBar
-			if not hero.dead and hero.pos2D.onScreen and barPos.onScreen and hero.visible then
+			if not hero.dead and hero.pos2D.onScreen and hero.visible then
 				local QDamage = Game.CanUseSpell(0) == 0 and GetDamage(HK_Q,hero) or 0
 				local WDamage = Game.CanUseSpell(1) == 0 and GetDamage(HK_W,hero) or 0
 				local EDamage = Game.CanUseSpell(2) == 0 and GetDamage(HK_E,hero) or 0
@@ -851,6 +851,8 @@ LocalCallbackAdd(
                 local damage = QDamage + WDamage + RDamage + EDamage
 				if damage > hero.health then
 					Draw.Text("KILL NOW", 30, hero.pos2D.x - 50, hero.pos2D.y + 50,Draw.Color(200, 255, 87, 51))				
+                else 
+                    Draw.Text("Harass", 30, hero.pos2D.x - 50, hero.pos2D.y + 50,Draw.Color(200, 255, 87, 51))				
                 end
 				end
                 end
@@ -1425,7 +1427,7 @@ end
 Saga_Menu = 
 function()
 	Saga = MenuElement({type = MENU, id = "Viktor", name = "Saga's Viktor: The Fellow Engineer"})
-	MenuElement({ id = "blank", type = SPACE ,name = "Version 2.6.3"})
+	MenuElement({ id = "blank", type = SPACE ,name = "Version 2.6.4"})
 	--Combo
     Saga:MenuElement({id = "Combo", name = "Combo", type = MENU})
     Saga.Combo:MenuElement({id = "UseQ", name = "Q", value = true})
