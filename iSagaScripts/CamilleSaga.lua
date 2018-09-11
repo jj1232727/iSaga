@@ -1083,7 +1083,7 @@ CastBurst = function(target)
         if GotBuff(myHero, "camillewconeslashcharge") == 1 then
             local spot = target:GetPrediction(math.huge, 0.2):Extended(myHero.pos, ((610 + 610)/3) + 100)
             Control.Move(spot)
-            end
+        end
         
         if  myHero:GetSpellData(_Q).name == "CamilleQ" and os.clock() - QCast > 2.5 and Saga.Combo.UseQ:Value() and Game.CanUseSpell(0) == 0 and target.pos:DistanceTo() < 300 then
             Control.CastSpell(HK_Q)
@@ -1107,8 +1107,18 @@ Harass = function()
         isCastingW = os.clock()
     end
 
+    if GotBuff(myHero, "camillewconeslashcharge") == 1 then
+        local spot = target:GetPrediction(math.huge, 0.2):Extended(myHero.pos, ((610 + 610)/3) + 100)
+        Control.Move(spot)
+    end
     
-    if Saga.Harass.UseQ:Value() and Game.CanUseSpell(0) == 0 and target.pos:DistanceTo() < 200 then
+    if  myHero:GetSpellData(_Q).name == "CamilleQ" and os.clock() - QCast > 2.5 and Saga.Combo.UseQ:Value() and Game.CanUseSpell(0) == 0 and target.pos:DistanceTo() < 300 then
+        Control.CastSpell(HK_Q)
+        ResetAutoAttack()
+        QCast = os.clock()
+    end
+    
+    if  GotBuff(myHero, "camilleqprimingcomplete") == 1 and Saga.Combo.UseQ:Value() and Game.CanUseSpell(0) == 0 and target.pos:DistanceTo() < 300 then
         Control.CastSpell(HK_Q)
         ResetAutoAttack()
     end
