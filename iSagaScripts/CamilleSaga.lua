@@ -829,18 +829,6 @@ GetIgnite()
 --leftside = MapPosition:inLeftBase(myHero.pos)
 Saga_Menu()
 
-if Game.Timer() > Saga.Rate.champion:Value() and #_EnemyHeroes == 0 then
-    for i = 1, TotalHeroes do 
-        local unit = _EnemyHeroes[i]
-        if SpellData[unit.charName] then
-            for x, v in pairs(SpellData[unit.charName]) do
-                if v then
-    Saga.Wset.UseW:MenuElement({id = x, name = "Use W on: "..v['name'], value = true})
-                end
-            end
-        end
-    end
-end
 if _G.EOWLoaded then
     SagaOrb = 1
 elseif _G.SDK and _G.SDK.Orbwalker then
@@ -989,6 +977,19 @@ LocalCallbackAdd("Draw", function()
     if Saga.Drawings.R.Enabled:Value() then 
         Draw.Circle(myHero.pos, 475, 0, Saga.Drawings.R.Color:Value())
     end
+
+    for i= 1, TotalHeroes do
+        local hero = _EnemyHeroes[i]
+        local barPos = hero.hpBar
+        if not hero.dead and hero.pos2D.onScreen and hero.visible then
+            local damage = GetDamage(hero)
+            if damage > hero.health then
+                Draw.Text("KILL NOW", 30, hero.pos2D.x - 50, hero.pos2D.y + 50,Draw.Color(200, 255, 87, 51))				
+            else 
+                Draw.Text("Harass", 30, hero.pos2D.x - 50, hero.pos2D.y + 50,Draw.Color(200, 255, 87, 51))				
+            end
+            end
+            end
     
 end)
 

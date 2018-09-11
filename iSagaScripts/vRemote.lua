@@ -6,7 +6,7 @@ Data = {
     Champions = {
         Camille = {
             Changelog = "Release",
-            Version = "BETA 1.0.0",
+            Version = "1.0.0",
         },
         Diana = {
             Changelog = "Added Q Buff Before using R",
