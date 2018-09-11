@@ -5,8 +5,8 @@ Data = {
 
     Champions = {
         Camille = {
-            Changelog = "Death Checks to Void Spam on Death Target",
-            Version = "BETA 1.1.1",
+            Changelog = "Release",
+            Version = "BETA 1.0.0",
         },
         Diana = {
             Changelog = "Added Q Buff Before using R",

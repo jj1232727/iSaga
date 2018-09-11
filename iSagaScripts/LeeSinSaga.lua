@@ -1,5 +1,6 @@
 if myHero.charName ~= "LeeSin" then return end
 local Camille = myHero
+local bp, gp
 --local leftside = MapPosition:inLeftBase(myHero.pos)
 local castSpell = {state = 0, tick = GetTickCount(), casting = GetTickCount() - 1000, mouse = mousePos}
 local SagaHeroCount = Game.HeroCount()
@@ -818,7 +819,7 @@ GetEnemiesinRangeCount = function(target,range)
     for i = 1, TotalHeroes do
 		local unit = _EnemyHeroes[i]
 		if unit.pos ~= nil and validTarget(unit) then
-			if  GetDistance(target.pos, unit.pos) <= range then
+			if  GetDistance(target.pos, unit.pos) <= range and unit.networkID ~= target.networkID then
 								
 				inRadius[myCounter] = unit
                 myCounter = myCounter + 1
@@ -1033,7 +1034,12 @@ LocalCallbackAdd("Draw", function()
     if Saga.Drawings.R.Enabled:Value() then 
         Draw.Circle(myHero.pos, 375, 0, Saga.Drawings.R.Color:Value())
     end
-    
+    if bp and gp then
+        Draw.Line(bp:To2D().x, bp:To2D().y, gp:To2D().x, gp:To2D().y, 10, Draw.Color(255, 155, 105, 240))
+        Draw.Circle(bp, 375, 0, Saga.Drawings.R.Color:Value())
+    end
+
+
 end)
 
 LocalCallbackAdd("Tick", function()
@@ -1374,14 +1380,26 @@ function BestPos(target)
     local bestPos = nil
     
         if target then
-                local n,allies = GetAlliesinRangeCount(target,1300)
+                --[[local n,allies = GetAlliesinRangeCount(target,1300)
                 if bestPos == nil then
                     if #allies > 0 then
                         local ally = allies[1]
                         local pos = ally + Vector(target.pos.x - ally.pos.x, 0,  target.pos.z - ally.pos.z):Normalized():Perpendicular() * (ally.range + ally.boundingRadius + myHero.boundingRadius - 10) / 2
                         bestPos = pos
                     end
+                end]]--
+
+                local een,en = GetEnemiesinRangeCount(target,700)
+                if bestPos == nil then
+                    if #en > 0 then
+                        print("gottemssssss")
+                        local ally2 = en[1]
+                        local pos = ally2.pos
+                        bestPos = pos
+                    end
                 end
+                print(bestPos)
+                --[[
 
                 for i = 1, LocalGameTurretCount()do
                     if bestPos == nil then
@@ -1397,6 +1415,7 @@ function BestPos(target)
                 if bestPos == nil then
                     bestPos = myHero.pos
                 end
+                ]]--
         end
 
         return bestPos
@@ -1413,11 +1432,13 @@ end
 
 function CastR(from, target, to)
         if Game.CanUseSpell(3) == 0 and from.valid and from and target and to and GetDistanceSqr(from, target) < 375 * 375 and GetDistanceSqr(from, to) > GetDistanceSqr(target, to) then
-            local finalPos = Vector(from) + Vector(target.pos.x - from.pos.x, 0,  target.pos.z - from.pos.z):Normalized() * 800
-
+            local finalPos = from.pos + (target.pos - from.pos):Normalized() * 800
+            bp = finalPos
+            print(bp)
             local closestAllyToInsec = VectorPointProjectionOnLineSegment(from.pos, finalPos, to)
-
-            if GetDistanceSqr(closestAllyToInsec, to) < 800 * 800 * 0.5 * 0.5 then
+            print(GetDistanceSqr(closestAllyToInsec, to) < 400 * 400)
+            if GetDistanceSqr(closestAllyToInsec, to) < 400 * 400 then
+                print("Here")
                 if myHero:GetSpellData(_Q).name == "BlindMonkQOne" and Game.CanUseSpell(0) == 0 then CastQ(target) end
                 Control.CastSpell(HK_R,target)
             end
@@ -1428,7 +1449,7 @@ CastInsec = function(target)
     
     local pos = BestPos(target)
     if target and pos then
-        local to = Vector(target) + Vector(pos.x - target.pos.x, 0, pos.z - target.pos.z):Normalized() * 800
+        local to = target.pos + (pos - target.pos):Normalized() * 800
         local distanceBetween = DistanceBetween(myHero, target)  
         if Game.CanUseSpell(3) ~= 0 and target.pos:DistanceTo() <= 350 and myHero:GetSpellData(_Q).name ~= "BlindMonkQTwo" and not target.pathing.isDashing then CastE(target) end -- CHeck Q buff
         if Game.CanUseSpell(0) == 0 and myHero:GetSpellData(_Q).name == "BlindMonkQTwo" and Game.CanUseSpell(3) == 0 and GetDistanceSqr(myHero, target) > (400 * 400) and GetDistanceSqr(myHero, target) < 1200 * 1200 then Control.CastSpell(HK_Q) end
@@ -1462,12 +1483,13 @@ function GapClose(from, target, to, mode)
         local GapClosePos = Vector(Position) + Vector(Position.x - to.x, 0,  Position.z - to.z):Normalized() * 600
         if mode == "Flash" then
             local GapClosePos = Position + Vector(Position.x - to.x, 0,  Position.z - to.z):Normalized() * (distanceBetween)
-
+            
             if GetDistanceSqr(GapClosePos, to) > GetDistanceSqr(target, to) and GetDistanceSqr(GapClosePos, Position) >= 80 * 80 and GetDistanceSqr(from, GapClosePos) < 400 * 400 and GetDistanceSqr(from, GapClosePos) > 400/2 * 400/2 then
-
+                gp = GapClosePos
                 CastSpell(flashcast, GapClosePos, 250)
     
             end
+            
         elseif mode == "WardJump" then
             GapClosePos = Position + Vector(Position.x - to.x, 0,  Position.z - to.z):Normalized() * (distanceBetween)
             if ward and myHero:GetSpellData(ward).currentCd == 0 and GetDistanceSqr(GapClosePos, to) > GetDistanceSqr(target, to) and GetDistanceSqr(GapClosePos, Position) >= 80 * 80 and GetDistanceSqr(GapClosePos, Position) < (375 - 75) * (375 - 75) and GetDistanceSqr(from, GapClosePos) < 600 * 600 then
@@ -1479,6 +1501,7 @@ function GapClose(from, target, to, mode)
             elseif myHero:GetSpellData(55).currentCd == 0 and GetDistanceSqr(GapClosePos, to) > GetDistanceSqr(target, to) and GetDistanceSqr(GapClosePos, Position) >= 80 * 80 and GetDistanceSqr(GapClosePos, Position) < (375 - 75) * (375 - 75) and GetDistanceSqr(from, GapClosePos) < 600 * 600 then 
                     CastSpell(HK_ITEM_7,GapClosePos, Game.Latency())
                     wardCasted = os.clock()
+                    gp = GapClosePos
                     if Game.CanUseSpell(1) == 0 then
                     CastSpell(HK_W, GapClosePos, Game.Latency())
                     end

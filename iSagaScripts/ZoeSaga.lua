@@ -1,29 +1,8 @@
 if myHero.charName ~= 'Zoe' then return end
 
 
-require "MapPosition"GetPred = function(unit,speed,delay,sourcePosA)
-	local speed = speed or math.huge
-	local delay = delay or 0.25
-	local sourcePos = sourcePosA or myHero.pos
-	local unitSpeed = unit.ms
-	if OnWaypoint(unit).speed > unitSpeed then unitSpeed = OnWaypoint(unit).speed end
-	if OnVision(unit).state == false then
-		local unitPos = unit.pos + Vector(unit.pos,unit.posTo):Normalized() * ((GetTickCount() - OnVision(unit).tick)/1000 * unitSpeed)
-		local predPos = unitPos + Vector(unit.pos,unit.posTo):Normalized() * (unitSpeed * (delay + (GetDistance(sourcePos,unitPos)/speed)))
-		if GetDistance(unit.pos,predPos) > GetDistance(unit.pos,unit.posTo) then predPos = unit.posTo end
-		return predPos
-	else
-		if unitSpeed > unit.ms then
-			local predPos = unit.pos + Vector(OnWaypoint(unit).startPos,unit.posTo):Normalized() * (unitSpeed * (delay + (GetDistance(sourcePos,unit.pos)/speed)))
-			if GetDistance(unit.pos,predPos) > GetDistance(unit.pos,unit.posTo) then predPos = unit.posTo end
-			return predPos
-		elseif IsImmobileTarget(unit) then
-			return unit.pos
-		else
-			return unit:GetPrediction(speed,delay)
-		end
-	end
-end
+require "MapPosition"
+
 
 Latency = Game.Latency
     local pDraw
@@ -193,7 +172,29 @@ Latency = Game.Latency
         return table.contains(p4, charName) and 2.25 or 1
       end
       
-      
+      GetPred = function(unit,speed,delay,sourcePosA)
+        local speed = speed or math.huge
+        local delay = delay or 0.25
+        local sourcePos = sourcePosA or myHero.pos
+        local unitSpeed = unit.ms
+        if OnWaypoint(unit).speed > unitSpeed then unitSpeed = OnWaypoint(unit).speed end
+        if OnVision(unit).state == false then
+            local unitPos = unit.pos + Vector(unit.pos,unit.posTo):Normalized() * ((GetTickCount() - OnVision(unit).tick)/1000 * unitSpeed)
+            local predPos = unitPos + Vector(unit.pos,unit.posTo):Normalized() * (unitSpeed * (delay + (GetDistance(sourcePos,unitPos)/speed)))
+            if GetDistance(unit.pos,predPos) > GetDistance(unit.pos,unit.posTo) then predPos = unit.posTo end
+            return predPos
+        else
+            if unitSpeed > unit.ms then
+                local predPos = unit.pos + Vector(OnWaypoint(unit).startPos,unit.posTo):Normalized() * (unitSpeed * (delay + (GetDistance(sourcePos,unit.pos)/speed)))
+                if GetDistance(unit.pos,predPos) > GetDistance(unit.pos,unit.posTo) then predPos = unit.posTo end
+                return predPos
+            elseif IsImmobileTarget(unit) then
+                return unit.pos
+            else
+                return unit:GetPrediction(speed,delay)
+            end
+        end
+    end
 
       ValidTargetM = function(target, range)
         range = range and range or math.huge
@@ -660,7 +661,7 @@ function ComboJB()
     if target then
         if target.pos:DistanceTo() < E.Range and Saga.Combo.UseE:Value() then
             
-            local CastPosition = GetPred(target,math.huge,Q.Delay + Game.Latency()/1000)
+            local CastPosition = GetPred(target,math.huge,E.Delay + Game.Latency()/1000)
             if Game.CanUseSpell(2) == 0 and minionCollision2(myHero.pos,CastPosition,E) == 0 then
                 
             stuncast = os.clock()  
@@ -770,7 +771,7 @@ function ComboJB()
             end
     local CastPosition
     if target then 
-    CastPosition = GetPred(target,math.huge,Q.Delay + Game.Latency()/1000)
+    CastPosition = GetPred(target,20000,Q.Delay + Game.Latency()/1000)
     end
     if GotBuff(target, "zoeesleepstun") == 1 and QRecast() and target.pos:DistanceTo() < rQ2ange and Saga.Combo.UseQ2:Value() then
         --local CastPosition = GetPred(target,math.huge,Q.Delay + Game.Latency()/1000)
@@ -804,7 +805,7 @@ function JBCombo()
     local point5
     if target then
         if os.clock() - stuncast > 1 and not QRecast()  and GotBuff(target, "zoeesleepcountdownslow") == 1 and target.pos:DistanceTo() < 1000 and Saga.Combo.UseQ:Value() then
-            point = Vector(target.pos):Extended(myHero.pos, 1000)
+            point = target.pos:Extended(myHero.pos, 1000)
             Collision = minionCollision2(myHero.pos, point, Q)
             if Collision == 0 and Game.CanUseSpell(0) == 0 then
                 noBuff = os.clock()
@@ -812,7 +813,7 @@ function JBCombo()
         if os.clock() - stuncast > 1 and not QRecast() and GotBuff(target, "zoeesleepcountdownslow") == 1 and target.pos:DistanceTo() < rQ2ange then
             local point2 = target.pos:Perpendicular()
                 local startpos = myHero.pos
-                local endpos = Vector(target.pos)
+                local endpos = target.pos
                 local dir = (endpos - startpos):Normalized()
                 pDir = dir:Perpendicular()
                 Collision = minionCollision2(myHero.pos, pDir, Q)
@@ -834,7 +835,7 @@ function JBCombo()
                         
                     end end
         if os.clock() - stuncast > 1 and not QRecast()  and target.pos:DistanceTo() < 1000 and Game.CanUseSpell(2) ~= 0 and Saga.Combo.UseQ:Value() then
-            point5 = Vector(target.pos):Extended(myHero.pos, 1000)
+            point5 = target.pos:Extended(myHero.pos, 1000)
             Collision = minionCollision2(myHero.pos, point5, Q)
             if Collision == 0 and Game.CanUseSpell(0) == 0 then
                 noBuff = os.clock()
@@ -846,7 +847,7 @@ function JBCombo()
             
             
             if Game.CanUseSpell(0) == 0 and Game.CanUseSpell(3) == 0 and QRecast() and target and Saga.Combo.UseR:Value() then
-                local pointr = Vector(myHero.pos):Extended(Vector(target.pos), 1000)
+                local pointr = myHero.pos:Extended(Vector(target.pos), 1000)
                 
                 if GetDistance(target.pos) > 600 then
                     CastSpell(HK_R, pointr)
@@ -924,7 +925,7 @@ function JBCombo()
     end 
      
     if target.pos:DistanceTo() < E.Range and Saga.Combo.UseE:Value() then
-        CastPosition = GetPred(target,math.huge,Q.Delay + Game.Latency()/1000)
+        CastPosition = GetPred(target,math.huge,E.Delay + Game.Latency()/1000)
         if Game.CanUseSpell(2) == 0 and minionCollision2(myHero.pos,CastPosition,E) == 0 then
         stuncast = os.clock() 
         if GetDistanceSqr(CastPosition, myHero) > E.Range * E.Range then
@@ -1048,7 +1049,7 @@ function JBComboH()
                 --local CastPosition = GetPred(target,math.huge,Q.Delay + Game.Latency()/1000)
                     CastSpell(HK_Q, target.pos)
             end
-            if os.clock() - noBuff > 0.7 and GotBuff(target, "zoeesleepcountdownslow") == 1 and QRecast() and target.pos:DistanceTo() < rQ2ange and Saga.Harass.UseQ2:Value() then
+            if os.clock() - noBuff > 0.5 and GotBuff(target, "zoeesleepcountdownslow") == 1 and QRecast() and target.pos:DistanceTo() < rQ2ange and Saga.Harass.UseQ2:Value() then
                 --CastPosition = GetPred(target,math.huge,Q.Delay + Game.Latency()/1000)
                     CastSpell(HK_Q, CastPosition, Q.Range, Q.Delay * 1000)
                        
@@ -1063,7 +1064,7 @@ function JBComboH()
             end 
              
             if target.pos:DistanceTo() < E.Range and Saga.Harass.UseE:Value() then
-                CastPosition = GetPred(target,math.huge,Q.Delay + Game.Latency()/1000)
+                CastPosition = GetPred(target,math.huge,E.Delay + Game.Latency()/1000)
                 if Game.CanUseSpell(2) == 0 and minionCollision2(myHero.pos,CastPosition,E) == 0 then    
                 CastSpell(HK_E, CastPosition, E.Range, E.Delay * 1000) 
                 stuncast = os.clock()
@@ -1602,7 +1603,7 @@ end
 Saga_Menu =
 function()
 	Saga = MenuElement({type = MENU, id = "Zoe", name = "Saga's Zoe: The Ultimate Jailbait", icon = AIOIcon})
-	MenuElement({ id = "blank", type = SPACE ,name = "Version BETA 1.9.0"})
+	MenuElement({ id = "blank", type = SPACE ,name = "Version BETA 1.9.1"})
 	--Combo
 	Saga:MenuElement({id = "Combo", name = "Combo", type = MENU})
     Saga.Combo:MenuElement({id = "UseQ", name = "Q", value = true})

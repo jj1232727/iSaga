@@ -15,7 +15,7 @@ Latency = Game.Latency
     local shit = Game.Object
     local cock = os.clock
 	local SagaIcon = "https://raw.githubusercontent.com/jj1232727/Orianna/master/images/saga.png"
-	local Q = {Range = 650, Width = 50, Delay = 0.25, Speed = 1000, Collision = false, aoe = false, Type = "circular", Radius = 150, From = Viktor}
+	local Q = {Range = 600, Width = 50, Delay = 0.25, Speed = 1000, Collision = false, aoe = false, Type = "circular", Radius = 150, From = Viktor}
 	local W = {Range = 700, Delay = 1, Speed = 1000, Collision = false, aoe = false, Type = "circular", Radius = 300, From = Viktor}
 	local E = {Range = 525, Width = 50, Radius = 50 ,Delay = .538, Speed = 780, Collision = false, aoe = false, Type = "line", From = Viktor}
 	local R = {Range = 525, Delay = 0.25 + ping, Speed = 1000, Collision = false, aoe = false, Type = "circular", Radius = 300, From = Viktor}
@@ -1427,7 +1427,7 @@ end
 Saga_Menu = 
 function()
 	Saga = MenuElement({type = MENU, id = "Viktor", name = "Saga's Viktor: The Fellow Engineer"})
-	MenuElement({ id = "blank", type = SPACE ,name = "Version 2.6.4"})
+	MenuElement({ id = "blank", type = SPACE ,name = "Version 2.6.5"})
 	--Combo
     Saga:MenuElement({id = "Combo", name = "Combo", type = MENU})
     Saga.Combo:MenuElement({id = "UseQ", name = "Q", value = true})

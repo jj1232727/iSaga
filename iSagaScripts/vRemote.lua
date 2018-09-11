@@ -4,6 +4,10 @@ Data = {
     },
 
     Champions = {
+        Camille = {
+            Changelog = "Release",
+            Version = "BETA 1.0.0",
+        },
         Diana = {
             Changelog = "Added Q Buff Before using R",
             Version = "BETA 1.1.1",
@@ -43,7 +47,7 @@ Data = {
         },
         Viktor = {
             Changelog = "E Pred",
-            Version = "2.6.4",
+            Version = "2.6.5",
         },
         Yasuo = {
             Changelog = "Release of Yasuo",
@@ -55,7 +59,7 @@ Data = {
         },
         Zoe = {
             Changelog = "Zoe Initial Release",
-            Version = "1.9.0",
+            Version = "1.9.1",
         },
     },
   

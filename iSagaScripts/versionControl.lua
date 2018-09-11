@@ -3,69 +3,69 @@ Data = {
         Version = 1.03,
     },
     Champions = {
-        Jinx = {
-            Changelog = "W Fix",
-            Version = "3.1.1",
-        },
-        Talon = {
-            Changelog = "New Talon Combo",
-            Version = "1.2.3",
-        },
-        Diana = {
-            Changelog = "Added Q Buff Before using R",
+        Camille = {
             Version = "BETA 1.1.1",
+            Changelog = "Death Checks to Void Spam on Death Target",
         },
         KogMaw = {
-            Changelog = "Vladimir Changelog Here",
             Version = 0,
-        },
-        Zed = {
-            Changelog = "Zed Release",
-            Version = "1.0.5",
-        },
-        LeeSin = {
-            Changelog = "Fixed Ult Damage",
-            Version = "1.1.5",
-        },
-        Katarina = {
-            Changelog = "Dagger Fix",
-            Version = "3.1.1",
-        },
-        Karthus = {
-            Changelog = "E Fix",
-            Version = "1.3.1",
-        },
-        Viktor = {
-            Changelog = "E Pred",
-            Version = "2.6.3",
+            Changelog = "Vladimir Changelog Here",
         },
         Zoe = {
-            Changelog = "Zoe Initial Release",
             Version = "1.9.0",
+            Changelog = "Zoe Initial Release",
+        },
+        LeeSin = {
+            Version = "1.1.5",
+            Changelog = "Fixed Ult Damage",
         },
         Kaisa = {
-            Changelog = "E Fix",
             Version = "BETA 2.0.0",
-        },
-        Camille = {
             Changelog = "E Fix",
-            Version = "BETA 1.0.4",
         },
-        Orianna = {
-            Changelog = "Orianna Auto Usage",
-            Version = "3.2.1",
+        Jinx = {
+            Version = "3.1.1",
+            Changelog = "W Fix",
         },
-        Irelia = {
+        Karthus = {
+            Version = "1.3.1",
             Changelog = "E Fix",
-            Version = "2.7.7",
         },
-        Syndra = {
-            Changelog = "Corki Changelog Here",
-            Version = 0,
+        Diana = {
+            Version = "BETA 1.1.1",
+            Changelog = "Added Q Buff Before using R",
         },
         Yasuo = {
-            Changelog = "Release of Yasuo",
             Version = "1.2.1",
+            Changelog = "Release of Yasuo",
+        },
+        Orianna = {
+            Version = "3.2.1",
+            Changelog = "Orianna Auto Usage",
+        },
+        Viktor = {
+            Version = "2.6.4",
+            Changelog = "E Pred",
+        },
+        Irelia = {
+            Version = "2.7.7",
+            Changelog = "E Fix",
+        },
+        Syndra = {
+            Version = 0,
+            Changelog = "Corki Changelog Here",
+        },
+        Talon = {
+            Version = "1.2.3",
+            Changelog = "New Talon Combo",
+        },
+        Katarina = {
+            Version = "3.1.1",
+            Changelog = "Dagger Fix",
+        },
+        Zed = {
+            Version = "1.0.5",
+            Changelog = "Zed Release",
         },
     },
 }

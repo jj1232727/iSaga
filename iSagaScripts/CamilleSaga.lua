@@ -995,17 +995,6 @@ end)
 LocalCallbackAdd("Tick", function()
     if Game.Timer() > Saga.Rate.champion:Value() and #_EnemyHeroes == 0 then
         TotalHeroes = GetEnemyHeroes()
-        checkSpells()
-    for i = 1, TotalHeroes do 
-        local unit = _EnemyHeroes[i]
-        if SpellData[unit.charName] then
-            for x, v in pairs(SpellData[unit.charName]) do
-                if v then
-    Saga.Wset.UseW:MenuElement({id = x, name = "Use W on: "..v['name'], value = true})
-                end
-            end
-        end
-    end
     end
     if #_EnemyHeroes == 0 then return end
 
