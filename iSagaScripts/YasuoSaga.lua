@@ -1595,10 +1595,10 @@ CastR = function(target)
         local number, lst, p = KnockUpT(myHero, 1200)
         --forloop
         if Game.CanUseSpell(3) == 0 and number >= Saga.Rset.RCount:Value() and not UnderTurret(DashEndPos(target)) and Saga.Combo.UseR:Value() then
-            CastSpell(HK_R, p)
+            Control.CastSpell(HK_R, p)
         else 
             if  number == 1 and Saga.Combo.UseR:Value() and GetDamage(target) > (target.health + target.shieldAD + target.shieldAP) and Game.CanUseSpell(3) == 0 then
-                CastSpell(HK_R, target)
+                Control.CastSpell(HK_R, target)
             end 
         end
 end

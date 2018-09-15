@@ -1120,7 +1120,7 @@ end
 function CastETarget(unit)
     local aim
     if unit and Game.CanUseSpell(2) == 0 and GetDistanceSqr(unit) < E.Range * E.Range then
-    aim = GetPred(unit,math.huge,0.25+ Game.Latency()/1000)
+    
         
         
         
@@ -1138,8 +1138,9 @@ function CastETarget(unit)
     end
     
     end
+    aim = GetPred(unit,20000000,0.25+ Game.Latency()/1000)
     if myHero.attackData.state ~= 2 and myHero:GetSpellData(_E).name == "IreliaE2" then
-        Espot2 = unit.pos + (myHero.pos - unit.pos): Normalized() * -150
+        Espot2 = aim + (myHero.pos - aim): Normalized() * - 50
         DisableMovement(true)
         Control.CastSpell(HK_E, Espot2)
         DisableMovement(false)
@@ -1195,14 +1196,14 @@ function GetDamage(spell, unit)
 
     if spell == HK_Q then
 		if Game.CanUseSpell(0) == 0 then
-			damage = CalcPhysicalDamage(Irelia ,unit, (Irelia:GetSpellData(_Q).level * 20 - 10) + AD * 0.7)
+            damage = CalcPhysicalDamage(Irelia ,unit, (Irelia:GetSpellData(_Q).level * 20 - 15) + AD * 0.6)
         end
     elseif spell == HK_W then
-        damage = CalcPhysicalDamage(Irelia, unit, (Irelia:GetSpellData(_W).level * 20 - 10) + (AD * 0.6) + (AP * 0.4))
+        damage = CalcPhysicalDamage(Irelia, unit, (Irelia:GetSpellData(_W).level * 15 - 5) + (AD * 0.5) + (AP * 0.4))
 
     elseif spell == HK_E then
         if Game.CanUseSpell(2) == 0 then
-            damage = CalcMagicalDamage(Irelia,unit, (Irelia:GetSpellData(_E).level * 40 + 40) + (AP * 0.8))
+            damage = CalcMagicalDamage(Irelia,unit, (Irelia:GetSpellData(_E).level * 40 + 30) + (AP * 0.8))
         end
     elseif spell == HK_R then
         if Game.CanUseSpell(3) == 0 then
@@ -1210,7 +1211,7 @@ function GetDamage(spell, unit)
         end
 
     end
-    return damage + AA
+    return damage
 end
 
 GetFullDamage = function(hero)
@@ -1414,7 +1415,7 @@ end
 Saga_Menu = 
 function()
 	Saga = MenuElement({type = MENU, id = "Irelia", name = "Saga's Irelia: Please Don't Nerf Me", icon = AIOIcon})
-	MenuElement({ id = "blank", type = SPACE ,name = "Version 2.7.8"})
+	MenuElement({ id = "blank", type = SPACE ,name = "Version 2.7.9"})
 	--Combo
 	Saga:MenuElement({id = "Combo", name = "Combo", type = MENU})
     Saga.Combo:MenuElement({id = "UseQ", name = "Q", value = true})

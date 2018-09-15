@@ -1205,7 +1205,7 @@ GetDamage = function(target) -- Ty Nechrito <3 THAKS <3
     if Game.CanUseSpell(3) == 0  then
         basedamage = CalcPhysicalDamage(myHero,target, ComboAA(target)) + 
         CalcMagicalDamage(myHero,target, myHero:GetSpellData(_R).level * 5 + 
-        (myHero:GetSpellData(_R).level * .2 + .2) * target.health )
+        (myHero:GetSpellData(_R).level * .2 + .2) * target.maxHealth )
     end
   
     if Game.CanUseSpell(2) == 0 then
@@ -1213,7 +1213,7 @@ GetDamage = function(target) -- Ty Nechrito <3 THAKS <3
     end
 
     if Game.CanUseSpell(1) == 0 then
-        bonusdamage = bonusDamage + CalcPhysicalDamage(myHero,target, (myHero:GetSpellData(_E).level * 30 + 40) + myHero.totalDamage * .60)
+        bonusdamage = bonusDamage + CalcPhysicalDamage(myHero,target, (myHero:GetSpellData(_E).level * 30 + 40) + myHero.totalDamage * .60 + (.60 * myHero.bonusDamage) + (3.3 * math.floor(myHero.bonusDamage)))
     end
   
     if Game.CanUseSpell(0) == 0 then
@@ -1637,15 +1637,20 @@ function CalcPhysicalDamage(source, target, amount)
     local basedamage = myHero.totalDamage
   
     if Game.CanUseSpell(3) == 0  then
-        basedamage = basedamage + CalcPhysicalDamage(myHero,target, (myHero:GetSpellData(_R).level* 100 + 100) + (1.5 * myHero.bonusDamage))
+        basedamage = basedamage + CalcPhysicalDamage(myHero,target, (myHero:GetSpellData(_R).level* 5) + (myHero:GetSpellData(_R).level * .2 + (.2 * target.health)))
     end
   
+    if Game.CanUseSpell(1) == 0 then
+        basedamage = basedamage + CalcPhysicalDamage(myHero,target, (myHero:GetSpellData(_W).level* 35 + 25) + (.60 * myHero.bonusDamage) + (3.3 * math.floor(myHero.bonusDamage)))
+    end
+
     if Game.CanUseSpell(2) == 0 then
-        basedamage = basedamage + CalcPhysicalDamage(myHero,target, (myHero:GetSpellData(_E).level* 10 + 60) + (.20 * myHero.bonusDamage) + (.6 * myHero.ap))
+        basedamage = basedamage + CalcPhysicalDamage(myHero,target, (myHero:GetSpellData(_E).level* 10 + 60) + (.20 * myHero.bonusDamage) + (.75 * myHero.bonusDamage))
     end
   
     if Game.CanUseSpell(0) == 0 then
-        basedamage = basedamage + CalcPhysicalDamage(myHero,target, (myHero:GetSpellData(_Q).level* 25 - 5) + (myHero.totalDamage)  + myHero.totalDamage)
+        basedamage = basedamage + CalcPhysicalDamage(myHero,target, (myHero:GetSpellData(_Q).level* .5 + .15) * bonusDamage) + -- WIth Passive
+        (basedamage + CalcPhysicalDamage(myHero,target, (myHero:GetSpellData(_Q).level* .5 + .15) * bonusDamage))
     end
   
     return basedamage
@@ -1654,7 +1659,7 @@ end
 Saga_Menu = 
 function()
 	Saga = MenuElement({type = MENU, id = "Camille", name = "Saga's Camille: She will butch your meat", icon = AIOIcon})
-	MenuElement({ id = "blank", type = SPACE ,name = "Version BETA 1.0.4"})
+	MenuElement({ id = "blank", type = SPACE ,name = "1.0.1"})
 	--Combo
 	Saga:MenuElement({id = "Combo", name = "Combo", type = MENU})
     Saga.Combo:MenuElement({id = "UseQ", name = "Q", value = true})

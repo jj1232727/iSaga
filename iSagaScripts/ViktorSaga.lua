@@ -739,7 +739,7 @@ end
         
             if spell == HK_Q then
                 if Game.CanUseSpell(0) == 0 then
-                    damage = CalcMagicalDamage(myHero ,unit, (myHero:GetSpellData(_Q).level * 20 + 40) + AP * 0.4)
+                    damage = CalcMagicalDamage(myHero ,unit, (myHero:GetSpellData(_Q).level * 20 + 40) + (AP * 0.4) + (myHero:GetSpellData(_Q).level * 30 - 10 ) )
 
                 end
             elseif spell == HK_E then
