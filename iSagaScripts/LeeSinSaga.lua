@@ -1034,10 +1034,11 @@ LocalCallbackAdd("Draw", function()
     if Saga.Drawings.R.Enabled:Value() then 
         Draw.Circle(myHero.pos, 375, 0, Saga.Drawings.R.Color:Value())
     end
+    --[[
     if bp and gp then
         Draw.Line(bp:To2D().x, bp:To2D().y, gp:To2D().x, gp:To2D().y, 10, Draw.Color(255, 155, 105, 240))
         Draw.Circle(bp, 375, 0, Saga.Drawings.R.Color:Value())
-    end
+    end]]--
 
 
 end)
@@ -1380,26 +1381,24 @@ function BestPos(target)
     local bestPos = nil
     
         if target then
-                --[[local n,allies = GetAlliesinRangeCount(target,1300)
+                local n,allies = GetAlliesinRangeCount(target,1300)
                 if bestPos == nil then
                     if #allies > 0 then
                         local ally = allies[1]
                         local pos = ally + Vector(target.pos.x - ally.pos.x, 0,  target.pos.z - ally.pos.z):Normalized():Perpendicular() * (ally.range + ally.boundingRadius + myHero.boundingRadius - 10) / 2
                         bestPos = pos
                     end
-                end]]--
+                end
 
-                local een,en = GetEnemiesinRangeCount(target,700)
+                --[[local een,en = GetEnemiesinRangeCount(target,700)
                 if bestPos == nil then
                     if #en > 0 then
-                        print("gottemssssss")
                         local ally2 = en[1]
                         local pos = ally2.pos
                         bestPos = pos
                     end
-                end
-                print(bestPos)
-                --[[
+                end]]--
+
 
                 for i = 1, LocalGameTurretCount()do
                     if bestPos == nil then
@@ -1415,7 +1414,7 @@ function BestPos(target)
                 if bestPos == nil then
                     bestPos = myHero.pos
                 end
-                ]]--
+
         end
 
         return bestPos
@@ -1434,11 +1433,9 @@ function CastR(from, target, to)
         if Game.CanUseSpell(3) == 0 and from.valid and from and target and to and GetDistanceSqr(from, target) < 375 * 375 and GetDistanceSqr(from, to) > GetDistanceSqr(target, to) then
             local finalPos = from.pos + (target.pos - from.pos):Normalized() * 800
             bp = finalPos
-            print(bp)
+
             local closestAllyToInsec = VectorPointProjectionOnLineSegment(from.pos, finalPos, to)
-            print(GetDistanceSqr(closestAllyToInsec, to) < 400 * 400)
             if GetDistanceSqr(closestAllyToInsec, to) < 400 * 400 then
-                print("Here")
                 if myHero:GetSpellData(_Q).name == "BlindMonkQOne" and Game.CanUseSpell(0) == 0 then CastQ(target) end
                 Control.CastSpell(HK_R,target)
             end
@@ -2032,7 +2029,7 @@ end
 Saga_Menu = 
 function()
 	Saga = MenuElement({type = MENU, id = "Lee Sin", name = "Saga's Lee Sin: Blind Bitch", icon = AIOIcon})
-	MenuElement({ id = "blank", type = SPACE ,name = "Version BETA 1.1.5"})
+	MenuElement({ id = "blank", type = SPACE ,name = "Version 1.1.6"})
 	--Combo
 	Saga:MenuElement({id = "Combo", name = "Combo", type = MENU})
     Saga.Combo:MenuElement({id = "UseQ", name = "Q", value = true})
