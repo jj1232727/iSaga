@@ -31,7 +31,7 @@ Data = {
         },
         LeeSin = {
             Changelog = "Lee ON Beta",
-            Version = "BETA 1.0.0",
+            Version = "1.1.6",
         },
         Orianna = {
             Changelog = "Orianna Auto Usage",

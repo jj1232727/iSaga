@@ -12,6 +12,10 @@ Data = {
             Changelog = "Added Q Buff Before using R",
             Version = "BETA 1.1.1",
         },
+        Graves = {
+            Changelog = "Release Beta Graves",
+            Version = "BETA 1.0.0",
+        },
         Irelia = {
             Changelog = "E Fix",
             Version = "2.7.9",
@@ -38,7 +42,7 @@ Data = {
         },
         LeeSin = {
             Changelog = "Fixed Ult Damage",
-            Version = "1.1.5",
+            Version = "1.1.6",
         },
         Orianna = {
             Changelog = "Orianna Auto Usage",
