@@ -1649,8 +1649,8 @@ function CalcPhysicalDamage(source, target, amount)
     end
   
     if Game.CanUseSpell(0) == 0 then
-        basedamage = basedamage + CalcPhysicalDamage(myHero,target, (myHero:GetSpellData(_Q).level* .5 + .15) * bonusDamage) + -- WIth Passive
-        (basedamage + CalcPhysicalDamage(myHero,target, (myHero:GetSpellData(_Q).level* .5 + .15) * bonusDamage))
+        basedamage = basedamage + CalcPhysicalDamage(myHero,target, (myHero:GetSpellData(_Q).level* .5 + .15) * myHero.bonusDamage) + -- WIth Passive
+        (basedamage + CalcPhysicalDamage(myHero,target, (myHero:GetSpellData(_Q).level* .5 + .15) * myHero.bonusDamage))
     end
   
     return basedamage
@@ -1659,7 +1659,7 @@ end
 Saga_Menu = 
 function()
 	Saga = MenuElement({type = MENU, id = "Camille", name = "Saga's Camille: She will butch your meat", icon = AIOIcon})
-	MenuElement({ id = "blank", type = SPACE ,name = "1.0.1"})
+	MenuElement({ id = "blank", type = SPACE ,name = "Version 1.0.2"})
 	--Combo
 	Saga:MenuElement({id = "Combo", name = "Combo", type = MENU})
     Saga.Combo:MenuElement({id = "UseQ", name = "Q", value = true})
