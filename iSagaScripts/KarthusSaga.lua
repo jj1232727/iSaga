@@ -506,6 +506,11 @@ LocalCallbackAdd(
             TotalHeroes = GetEnemyHeroes()
         end
         if #_EnemyHeroes == 0 then return end
+        if manaManager(myHero) <= Saga.mana.manaA.Amana:Value() then
+            DisableAttacks(false)
+        else
+            DisableAttacks(true)
+        end
             OnVisionF()
             if myHero.dead or Game.IsChatOpen() == true  or isEvading then return end
             AutoQ()
@@ -618,9 +623,9 @@ LocalCallbackAdd(
         if target then
             if Saga.Misc.UseQ:Value() then
                 CastQ(target)
-                
             end
-            if IsImmobileTarget(target) or IsSlowedTarget(target) and Saga.Misc.UseQ2:Value() then
+            
+            if IsSlowedTarget(target) and Saga.Misc.UseQ2:Value() then
                 CastQ(target)
             end
         end
@@ -651,7 +656,7 @@ LocalCallbackAdd(
             local minion = Game.Minion(i)
             if Saga.Harass.UseQ:Value() and minion.pos:DistanceTo() <= 875 and minion.isEnemy and not minion.dead and Game.CanUseSpell(0) == 0 then
                 local dmgQ = QDMG(minion)
-                if os.clock() - Qclock > .7 and manaManager(myHero) >= Saga.mana.manaL.Qmana:Value() and dmgQ >= minion.health and Saga.Clear.UseQ:Value() and myHero.attackData.state ~= 2 and Game.CanUseSpell(0) == 0 then
+                if manaManager(myHero) >= Saga.mana.manaL.Qmana:Value() and dmgQ >= minion.health and Saga.Clear.UseQ:Value() and myHero.attackData.state ~= 2 and Game.CanUseSpell(0) == 0 then
                     Control.CastSpell(HK_Q,minion.pos)
                     Qclock = os.clock()
                 end
@@ -681,11 +686,11 @@ LocalCallbackAdd(
             local minion = Game.Minion(i)
             if Saga.Clear.UseQ:Value() and minion.pos:DistanceTo() <= 875 and minion.isEnemy and not minion.dead and Game.CanUseSpell(0) == 0 then
                 local dmgQ = QDMG(minion)
-                if os.clock() - Qclock > .7 and manaManager(myHero) >= Saga.mana.manaL.Qmana:Value() and dmgQ >= minion.health and Saga.Clear.UseQ:Value() and myHero.attackData.state ~= 2 and Game.CanUseSpell(0) == 0 then
+                if manaManager(myHero) >= Saga.mana.manaL.Qmana:Value() and dmgQ >= minion.health and Saga.Clear.UseQ:Value() and myHero.attackData.state ~= 2 and Game.CanUseSpell(0) == 0 then
                     Control.CastSpell(HK_Q,minion.pos)
                     Qclock = os.clock()
                 else
-                    if os.clock() - Qclock > .7 and Saga.Clear.UseQ:Value() and manaManager(myHero) >= Saga.mana.manaL.Qmana:Value() and Game.CanUseSpell(0) == 0 and myHero.attackData.state ~= 2 then 
+                    if Saga.Clear.UseQ:Value() and manaManager(myHero) >= Saga.mana.manaL.Qmana:Value() and Game.CanUseSpell(0) == 0 and myHero.attackData.state ~= 2 then 
                     Control.CastSpell(HK_Q,minion.pos)
                     Qclock = os.clock()
                 end 
@@ -694,8 +699,6 @@ LocalCallbackAdd(
         end
         local number, m = GetMinionsinRangeCount(myHero,420)
         if Saga.Clear.UseE:Value() and manaManager(myHero) >= Saga.mana.manaL.Emana:Value() and number >= 3 and myHero:GetSpellData(_E).toggleState == 1 and Game.CanUseSpell(2) == 0 then
-            Control.CastSpell(HK_E)
-        elseif Saga.Clear.UseE:Value() and manaManager(myHero) >= Saga.mana.manaL.Emana:Value() and number < 3 and myHero:GetSpellData(_E).toggleState == 2 and Game.CanUseSpell(2) == 0 then
             Control.CastSpell(HK_E)
         end
         end
@@ -707,7 +710,7 @@ LocalCallbackAdd(
             local minion = Game.Minion(i)
             if minion.pos:DistanceTo() <= 875 and minion.isEnemy and not minion.dead and Game.CanUseSpell(0) == 0 then
                 local dmgQ = QDMG(minion)
-                if os.clock() - Qclock > .7 and dmgQ >= minion.health and Saga.Clear.UseQ:Value() and myHero.attackData.state ~= 2 then
+                if dmgQ >= minion.health and Saga.Lasthit.UseQ:Value() and myHero.attackData.state ~= 2 then
                     CastSpell(HK_Q,minion.pos, 875)
                     Qclock = os.clock()
                 end
@@ -719,6 +722,9 @@ LocalCallbackAdd(
 
     CastQ =  function(target)
         if target.pos:DistanceTo() < 875 and Game.CanUseSpell(0) == 0 and (Game.Timer() - OnWaypoint(target).time > 0.05) and (Game.Timer() - OnWaypoint(target).time < 0.20 or Game.Timer() - OnWaypoint(target).time > 1.25) then
+            if IsImmobileTarget(target) then
+                Control.CastSpell(HK_Q, target.pos)
+            end
             local aim = GetPred(target, 1500, .50 )
                 if aim:DistanceTo() > 875 then 
                     aim = myHero.pos + (aim - myHero.pos):Normalized()*875
@@ -748,8 +754,6 @@ LocalCallbackAdd(
     CastE = function()
         local number, enemies = GetEnemiesinRangeCount(myHero, 460)
         if number > 0 and myHero:GetSpellData(_E).toggleState == 1 and Game.CanUseSpell(2) == 0 then 
-            Control.CastSpell(HK_E)
-        elseif number < 1 and myHero:GetSpellData(_E).toggleState == 2 and Game.CanUseSpell(2) == 0 then
             Control.CastSpell(HK_E)
         end
     end
@@ -1221,6 +1225,7 @@ GetBestLinearCastPos = function(spell, sTar, list)
 	return endPos, MostHit
 end
 manaManager = function(unit)
+    
     return (unit.mana / unit.maxMana) * 100
 end
 
@@ -1236,12 +1241,13 @@ end
 Saga_Menu =
 function()
 	Saga = MenuElement({type = MENU, id = "Karthus", name = "Saga's Karthus: The Dead Version Of Jafar", icon = AIOIcon})
-	MenuElement({ id = "blank", type = SPACE ,name = "Version BETA 1.3.2"})
+	MenuElement({ id = "blank", type = SPACE ,name = "Version BETA 1.3.3"})
 	--Combo
 	Saga:MenuElement({id = "Combo", name = "Combo", type = MENU})
     Saga.Combo:MenuElement({id = "UseQ", name = "Q", value = true})
 	Saga.Combo:MenuElement({id = "UseW", name = "W", value = true})
-	Saga.Combo:MenuElement({id = "UseE", name = "E", value = true})
+    Saga.Combo:MenuElement({id = "UseE", name = "E", value = true})
+    Saga.Combo:MenuElement({id = "UseE2", name = "E", value = true})
 	Saga.Combo:MenuElement({id = "comboActive", name = "Combo key", key = string.byte(" ")})
 
 	Saga:MenuElement({id = "Harass", name = "Harass", type = MENU})
@@ -1263,10 +1269,12 @@ function()
     Saga.mana:MenuElement({id = "manaL", name = "LaneClear", type = MENU})
     Saga.mana.manaL:MenuElement({id = 'Qmana', name = 'Min. Mana For Q', value = 25, min = 0, max = 100, tooltip = "Percentage"})
     Saga.mana.manaL:MenuElement({id = 'Emana', name = 'Min. Mana for E', value = 25, min = 0, max = 100, tooltip = "Percentage"})
+    Saga.mana:MenuElement({id = "manaA", name = "Auto Attack", type = MENU})
+    Saga.mana.manaA:MenuElement({id = 'Amana', name = 'Min. Mana for Using AA', value = 25, min = 0, max = 100, tooltip = "Percentage"})
 
     Saga:MenuElement({id = "Misc", name = "Auto/Misc", type = MENU})
     Saga.Misc:MenuElement({id = "sw", name = "AA Weave + Q", value = false})
-    Saga.Misc:MenuElement({id = "ae", name = "Auto Off E w/ notihng around", value = true})
+    Saga.Misc:MenuElement({id = "ae", name = "Auto Off E w/ nothing around", value = true})
     Saga.Misc:MenuElement({id = "UseQ", name = "Auto Q", value = false})
     Saga.Misc:MenuElement({id = "UseQ2", name = "Only Auto Q on CC/Recall/Still target", value = false})
 
