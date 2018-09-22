@@ -1247,7 +1247,6 @@ function()
     Saga.Combo:MenuElement({id = "UseQ", name = "Q", value = true})
 	Saga.Combo:MenuElement({id = "UseW", name = "W", value = true})
     Saga.Combo:MenuElement({id = "UseE", name = "E", value = true})
-    Saga.Combo:MenuElement({id = "UseE2", name = "E", value = true})
 	Saga.Combo:MenuElement({id = "comboActive", name = "Combo key", key = string.byte(" ")})
 
 	Saga:MenuElement({id = "Harass", name = "Harass", type = MENU})
