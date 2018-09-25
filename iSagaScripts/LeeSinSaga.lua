@@ -2098,7 +2098,7 @@ end
 Saga_Menu = 
 function()
 	Saga = MenuElement({type = MENU, id = "Lee Sin", name = "Saga's Lee Sin: Blind Bitch", icon = AIOIcon})
-	MenuElement({ id = "blank", type = SPACE ,name = "Version 1.1.6"})
+	MenuElement({ id = "blank", type = SPACE ,name = "Version 1.1.7"})
 	--Combo
 	Saga:MenuElement({id = "Combo", name = "Combo", type = MENU})
     Saga.Combo:MenuElement({id = "UseQ", name = "Q", value = true})
