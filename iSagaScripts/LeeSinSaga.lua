@@ -1,6 +1,7 @@
 if myHero.charName ~= "LeeSin" then return end
 local Camille = myHero
 local bp, gp
+local lp = 0
 --local leftside = MapPosition:inLeftBase(myHero.pos)
 local castSpell = {state = 0, tick = GetTickCount(), casting = GetTickCount() - 1000, mouse = mousePos}
 local SagaHeroCount = Game.HeroCount()
@@ -40,6 +41,7 @@ local flashcast
 local smiteslot
 local smitecast
 local wardCasted = 0
+local p4 = {"Ahri", "Anivia", "Annie", "Ashe", "Azir", "Brand", "Caitlyn", "Cassiopeia", "Corki", "Draven", "Ezreal", "Graves", "Jinx", "Kalista", "Karma", "Karthus", "Katarina", "Kennen", "KogMaw", "Kindred", "Leblanc", "Lucian", "Lux", "Malzahar", "MasterYi", "MissFortune", "Orianna", "Quinn", "Sivir", "Syndra", "Talon", "Teemo", "Tristana", "TwistedFate", "Twitch", "Varus", "Vayne", "Veigar", "Velkoz", "Viktor", "Xerath", "Zed", "Ziggs", "Jhin", "Soraka", "Zoe", "Xayah","Kaisa", "Taliyah", "AurelionSol"}
 local HKITEM = { [ITEM_1] = 49, [ITEM_2] = 50, [ITEM_3] = 51, [ITEM_4] = 53, [ITEM_5] = 54, [ITEM_6] = 55, [ITEM_7] = 52
 	}
 
@@ -515,8 +517,19 @@ GetEnemyHeroes = function()
 	end
 
 
-
-
+    GetEnemiesInlineCount = function(target)
+        local lineCount = {}
+        for i = 1, TotalHeroes do
+            local unit = _EnemyHeroes[i]
+            local finalPos = myHero.pos + (target.pos - myHero.pos):Normalized() * 800
+            local closestAllyToInsec, lslsl, isON = VectorPointProjectionOnLineSegment(myHero.pos, finalPos, unit.pos)
+            if isON and GetDistanceSqr(closestAllyToInsec, unit) < 400 + unit.boundingRadius * 400 + unit.boundingRadius and unit and unit ~= target then
+                lineCount[myCounter] = unit
+                myCounter = myCounter + 1
+            end
+        end
+        return #lineCount, lineCount
+    end
 validTarget = function(unit)
         if unit and unit.isEnemy and unit.valid and unit.isTargetable and not unit.dead and not unit.isImmortal and not (GotBuff(unit, 'FioraW') == 1) and
         not (GotBuff(unit, 'XinZhaoRRangedImmunity') == 1 and unit.distance < 450) and unit.visible then
@@ -815,37 +828,41 @@ end
 
 GetEnemiesinRangeCount = function(target,range)
 	local inRadius =  {}
-	
+    local lastEnemy
+    local pEnemy
     for i = 1, TotalHeroes do
 		local unit = _EnemyHeroes[i]
 		if unit.pos ~= nil and validTarget(unit) then
 			if  GetDistance(target.pos, unit.pos) <= range and unit.networkID ~= target.networkID then
-								
+                lastEnemy = unit
+                if table.contains(p4, unit.charName) then
+                    pEnemy = unit
+                end
 				inRadius[myCounter] = unit
                 myCounter = myCounter + 1
             end
         end
 	end
 		myCounter = 1
-    return #inRadius, inRadius
+    return #inRadius, inRadius, lastEnemy, pEnemy
 end
 
 
 GetAlliesinRangeCount = function(target,range)
 	local inRadius =  {}
-	
+	local firstAlly
     for i = 1, TotalAHeroes do
 		local unit = _AllyHero[i]
-		if unit.pos ~= nil and validTarget(unit) then
+		if unit and target and not unit.isMe then
 			if  GetDistance(target.pos, unit.pos) <= range then
-								
+				firstAlly = unit				
 				inRadius[myCounter] = unit
                 myCounter = myCounter + 1
             end
         end
 	end
-		myCounter = 1
-    return #inRadius, inRadius
+        myCounter = 1
+    return #inRadius, inRadius, firstAlly
 end
 
 
@@ -1034,8 +1051,7 @@ LocalCallbackAdd("Draw", function()
     if Saga.Drawings.R.Enabled:Value() then 
         Draw.Circle(myHero.pos, 375, 0, Saga.Drawings.R.Color:Value())
     end
-    --[[
-    if bp and gp then
+    --[[if bp and gp then
         Draw.Line(bp:To2D().x, bp:To2D().y, gp:To2D().x, gp:To2D().y, 10, Draw.Color(255, 155, 105, 240))
         Draw.Circle(bp, 375, 0, Saga.Drawings.R.Color:Value())
     end]]--
@@ -1045,7 +1061,6 @@ end)
 
 LocalCallbackAdd("Tick", function()
 
-    
     if Game.Timer() > Saga.Rate.champion:Value() and #_EnemyHeroes == 0 then
         TotalHeroes = GetEnemyHeroes()
         TotalAHeroes = GetAllyHeroes()
@@ -1110,7 +1125,7 @@ end
 
 GapClose1 = function(target)
     if Game.CanUseSpell(1) == 0 and myHero:GetSpellData(_W).name == "BlindMonkWOne" then
-        local number, mp = GetAlliesinRangeCount(target)
+        local number, mp = GetAlliesinRangeCount(target, 1300)
         local closest = 99999
         local midp
         for i = 1, SagaMCount() do 
@@ -1161,8 +1176,18 @@ end
 
 Combo = function()
     
+
     target = GetTarget(2000)
     if target and validTarget(target) then
+        if Saga.Combo.BK:Value() then
+            CastInsecBubba(target)
+        end
+        local n,e = GetEnemiesInlineCount(target)
+        
+        if n >= Saga.Combo.ku:Value() then 
+            Control.CastSpell(HK_R, target)
+        end
+
         SIGroup(target)
         local stacks = leeStacks()
     if Saga.Combo.UseR:Value() and GetDamage(target, HK_R) > target.health and Game.CanUseSpell(3) == 0 and GetDistance(myHero,target) < 375 then
@@ -1377,46 +1402,63 @@ CastQ1 = function(target)
     end
 end
 
+function bubbKushInsec(target)
+    local bestPos = nil
+    local een,en, l, p = GetEnemiesinRangeCount(target,700)
+                if bestPos == nil then 
+                    if p then
+                        local ally2 = p
+                        local pos = ally2.pos
+                        bestPos = pos
+                    end
+                end
+                if bestPos == nil then
+                    if #en > 0 then
+                        local ally2 = l
+                        local pos = ally2.pos
+                        bestPos = pos
+                    end
+        return bestPos
+    end
+end
+
 function BestPos(target)
     local bestPos = nil
     
         if target then
-                local n,allies = GetAlliesinRangeCount(target,1300)
+                local n,allies,l = GetAlliesinRangeCount(target,1300)
                 if bestPos == nil then
-                    if #allies > 0 then
-                        local ally = allies[1]
-                        local pos = ally + Vector(target.pos.x - ally.pos.x, 0,  target.pos.z - ally.pos.z):Normalized():Perpendicular() * (ally.range + ally.boundingRadius + myHero.boundingRadius - 10) / 2
+                    if n > 0 then
+                        local ally = l
+                        local pos = ally.pos + (target.pos - ally.pos):Normalized():Perpendicular() * (ally.range + ally.boundingRadius + myHero.boundingRadius - 10) / 2
                         bestPos = pos
                     end
                 end
 
-                --[[local een,en = GetEnemiesinRangeCount(target,700)
+                
+
+
+                
                 if bestPos == nil then
-                    if #en > 0 then
-                        local ally2 = en[1]
-                        local pos = ally2.pos
-                        bestPos = pos
-                    end
-                end]]--
-
-
-                for i = 1, LocalGameTurretCount()do
-                    if bestPos == nil then
+                        
+                    for i = 1, LocalGameTurretCount()do
                     local turret = LocalGameTurret(i)
-                        if turret and turret.valid then
-                            if GetDistanceSqr(turret, target) - 800 < (turret.range + 200) * (turret.range + 200) then
+                        if turret and turret.isAlly and turret.valid and turret.alive then
+                            
+                            if GetDistance(turret, target) - 800 < (turret.range + 200)  then
                                 bestPos = turret.pos 
                             end
                         end
+                        
                     end
+
                 end
 
                 if bestPos == nil then
-                    bestPos = myHero.pos
+                    bestPos = myHero
                 end
-
         end
-
+        bp = bestPos
         return bestPos
 
 end
@@ -1425,16 +1467,20 @@ end
 
 function DistanceBetween(from, target)
     if target then
-        return math.min((myHero.boundingRadius + target.boundingRadius + 80) * (20 + 100)/100 or 0, 375)
+        return math.min((from.boundingRadius + target.boundingRadius + 80) * (20 + 100)/100 or 0, 375)
     end
 end
 
 function CastR(from, target, to)
-        if Game.CanUseSpell(3) == 0 and from.valid and from and target and to and GetDistanceSqr(from, target) < 375 * 375 and GetDistanceSqr(from, to) > GetDistanceSqr(target, to) then
-            local finalPos = from.pos + (target.pos - from.pos):Normalized() * 800
-            bp = finalPos
+        if Game.CanUseSpell(3) == 0 and from and target and to and GetDistanceSqr(from, target) < 375 * 375  then
 
+            local finalPos = from.pos + (target.pos - from.pos):Normalized() * 800
+
+            --Draw.Circle(to, 20, 100, Draw.Color(200, 255, 255, 255))
+            --Draw.Circle(finalPos, 100, 100, Draw.Color(200, 255, 255, 255))
             local closestAllyToInsec = VectorPointProjectionOnLineSegment(from.pos, finalPos, to)
+            
+            
             if GetDistanceSqr(closestAllyToInsec, to) < 400 * 400 then
                 if myHero:GetSpellData(_Q).name == "BlindMonkQOne" and Game.CanUseSpell(0) == 0 then CastQ(target) end
                 Control.CastSpell(HK_R,target)
@@ -1443,11 +1489,35 @@ function CastR(from, target, to)
 end
 
 CastInsec = function(target)
-    
     local pos = BestPos(target)
     if target and pos then
         local to = target.pos + (pos - target.pos):Normalized() * 800
-        local distanceBetween = DistanceBetween(myHero, target)  
+        local distanceBetween = DistanceBetween(myHero, target) 
+        if Game.CanUseSpell(3) ~= 0 and target.pos:DistanceTo() <= 350 and myHero:GetSpellData(_Q).name ~= "BlindMonkQTwo" and not target.pathing.isDashing then CastE(target) end -- CHeck Q buff
+        if Game.CanUseSpell(0) == 0 and myHero:GetSpellData(_Q).name == "BlindMonkQTwo" and Game.CanUseSpell(3) == 0 and GetDistanceSqr(myHero, target) > (400 * 400) and GetDistanceSqr(myHero, target) < 1200 * 1200 then Control.CastSpell(HK_Q) end
+        if Game.CanUseSpell(0) == 0 and myHero:GetSpellData(_Q).name == "BlindMonkQTwo" and Game.CanUseSpell(3) ~= 0 and GetDistanceSqr(myHero, target) > (400 * 400) and GetDistanceSqr(myHero, target) < 1200 * 1200 then Control.CastSpell(HK_Q) end
+        CastQ1(target)
+        if Game.CanUseSpell(3) == 0 and GetDistanceSqr(myHero, target) < (600 - distanceBetween) * (600 - distanceBetween) and GetDistanceSqr(myHero, to) < GetDistanceSqr(target, to) then
+            local items = checkItems()
+                
+                local ward = items[3340] or items[2049] or items[2301] or items[2302] or items[2303] or items[3711]
+                if flashslot and Game.CanUseSpell(flashslot) == 0 then
+
+                    GapClose(myHero, target, to, "Flash") 
+                elseif myHero:GetSpellData(55).currentCd == 0 and Game.CanUseSpell(1) == 0 then
+  
+                    GapClose(myHero, target, to, "WardJump")
+                end
+        end
+        CastR(myHero, target, to)
+    end
+end
+
+CastInsecBubba = function(target)
+    local pos = bubbKushInsec(target)
+    if target and pos then
+        local to = target.pos + (pos - target.pos):Normalized() * 800
+        local distanceBetween = DistanceBetween(myHero, target) 
         if Game.CanUseSpell(3) ~= 0 and target.pos:DistanceTo() <= 350 and myHero:GetSpellData(_Q).name ~= "BlindMonkQTwo" and not target.pathing.isDashing then CastE(target) end -- CHeck Q buff
         if Game.CanUseSpell(0) == 0 and myHero:GetSpellData(_Q).name == "BlindMonkQTwo" and Game.CanUseSpell(3) == 0 and GetDistanceSqr(myHero, target) > (400 * 400) and GetDistanceSqr(myHero, target) < 1200 * 1200 then Control.CastSpell(HK_Q) end
         if Game.CanUseSpell(0) == 0 and myHero:GetSpellData(_Q).name == "BlindMonkQTwo" and Game.CanUseSpell(3) ~= 0 and GetDistanceSqr(myHero, target) > (400 * 400) and GetDistanceSqr(myHero, target) < 1200 * 1200 then Control.CastSpell(HK_Q) end
@@ -1477,25 +1547,25 @@ function GapClose(from, target, to, mode)
     if Position ~= nil then
         local items = checkItems()
         local ward = items[3340] or items[2049] or items[2055]  or items[2301] or items[2302] or items[2303] or items[3711]
-        local GapClosePos = Vector(Position) + Vector(Position.x - to.x, 0,  Position.z - to.z):Normalized() * 600
+        local GapClosePos = Position + (Position - to):Normalized() * 600
         if mode == "Flash" then
-            local GapClosePos = Position + Vector(Position.x - to.x, 0,  Position.z - to.z):Normalized() * (distanceBetween)
-            
-            if GetDistanceSqr(GapClosePos, to) > GetDistanceSqr(target, to) and GetDistanceSqr(GapClosePos, Position) >= 80 * 80 and GetDistanceSqr(from, GapClosePos) < 400 * 400 and GetDistanceSqr(from, GapClosePos) > 400/2 * 400/2 then
-                gp = GapClosePos
+            GapClosePos = Position + (Position - to):Normalized() * (distanceBetween)
+
+            if Game.CanUseSpell(3) == 0 and GetDistanceSqr(GapClosePos, to) > GetDistanceSqr(target, to) and GetDistanceSqr(GapClosePos, Position) >= 80 * 80 and GetDistanceSqr(from, GapClosePos) < 400 * 400 and GetDistanceSqr(from, GapClosePos) > 400/2 * 400/2 then
+                --if myHero:GetSpellData(_Q).name == "BlindMonkQOne" and Game.CanUseSpell(0) == 0 then CastQ(target) end
                 CastSpell(flashcast, GapClosePos, 250)
-    
             end
-            
+        
         elseif mode == "WardJump" then
-            GapClosePos = Position + Vector(Position.x - to.x, 0,  Position.z - to.z):Normalized() * (distanceBetween)
-            if ward and myHero:GetSpellData(ward).currentCd == 0 and GetDistanceSqr(GapClosePos, to) > GetDistanceSqr(target, to) and GetDistanceSqr(GapClosePos, Position) >= 80 * 80 and GetDistanceSqr(GapClosePos, Position) < (375 - 75) * (375 - 75) and GetDistanceSqr(from, GapClosePos) < 600 * 600 then
+            GapClosePos = Position + (Position - to):Normalized() * (distanceBetween)
+            if  os.clock() - wardCasted > 3 and ward and myHero:GetSpellData(ward).currentCd == 0 and GetDistanceSqr(GapClosePos, to) > GetDistanceSqr(target, to) and GetDistanceSqr(GapClosePos, Position) >= 80 * 80 and GetDistanceSqr(GapClosePos, Position) < (375 - 75) * (375 - 75) and GetDistanceSqr(from, GapClosePos) < 600 * 600 then
                 CastSpell(HKITEM[ward], GapClosePos, Game.Latency())
                 wardCasted = os.clock()
+                gp = GapClosePos
                 if Game.CanUseSpell(1) == 0 then
                     CastSpell(HK_W, GapClosePos, Game.Latency())
                 end
-            elseif myHero:GetSpellData(55).currentCd == 0 and GetDistanceSqr(GapClosePos, to) > GetDistanceSqr(target, to) and GetDistanceSqr(GapClosePos, Position) >= 80 * 80 and GetDistanceSqr(GapClosePos, Position) < (375 - 75) * (375 - 75) and GetDistanceSqr(from, GapClosePos) < 600 * 600 then 
+            elseif os.clock() - wardCasted > 3 and myHero:GetItemData(55).stacks == 0 and GetDistanceSqr(GapClosePos, to) > GetDistanceSqr(target, to) and GetDistanceSqr(GapClosePos, Position) >= 80 * 80 and GetDistanceSqr(GapClosePos, Position) < (375 - 75) * (375 - 75) and GetDistanceSqr(from, GapClosePos) < 600 * 600 then 
                     CastSpell(HK_ITEM_7,GapClosePos, Game.Latency())
                     wardCasted = os.clock()
                     gp = GapClosePos
@@ -1503,8 +1573,7 @@ function GapClose(from, target, to, mode)
                     CastSpell(HK_W, GapClosePos, Game.Latency())
                     end
             end
-            
-            
+            CastR(myHero, target, to)
         end
     end
 end
@@ -2036,6 +2105,8 @@ function()
     Saga.Combo:MenuElement({id = "UseE", name = "E", value = true})
     Saga.Combo:MenuElement({id = "UseW", name = "W", value = true})
     Saga.Combo:MenuElement({id = "UseR", name = "R", value = true})
+    Saga.Combo:MenuElement({id = "BK", name = "BubbaKush", value = true})
+    Saga.Combo:MenuElement({id = "ku", name = "X Enemies Knock up to R", value = 2, min = 0, max = 5, step = 1})
     Saga.Combo:MenuElement({id = "wj", name = "Ward Jump", key = string.byte("Z")})
 
     Saga:MenuElement({id = "insec", name = "Insec", type = MENU})
