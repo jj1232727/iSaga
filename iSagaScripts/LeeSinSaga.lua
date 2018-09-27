@@ -1066,7 +1066,6 @@ LocalCallbackAdd("Tick", function()
         TotalAHeroes = GetAllyHeroes()
     end
     if #_EnemyHeroes == 0 then return end
-
     if myHero.dead or Game.IsChatOpen() == true  or isEvading then return end
     OnVisionF()
     if Saga.smite.Asm:Value() then
@@ -1497,7 +1496,7 @@ CastInsec = function(target)
         if Game.CanUseSpell(0) == 0 and myHero:GetSpellData(_Q).name == "BlindMonkQTwo" and Game.CanUseSpell(3) == 0 and GetDistanceSqr(myHero, target) > (400 * 400) and GetDistanceSqr(myHero, target) < 1200 * 1200 then Control.CastSpell(HK_Q) end
         if Game.CanUseSpell(0) == 0 and myHero:GetSpellData(_Q).name == "BlindMonkQTwo" and Game.CanUseSpell(3) ~= 0 and GetDistanceSqr(myHero, target) > (400 * 400) and GetDistanceSqr(myHero, target) < 1200 * 1200 then Control.CastSpell(HK_Q) end
         CastQ1(target)
-        if Game.CanUseSpell(3) == 0 and GetDistanceSqr(myHero, target) < (600 - distanceBetween) * (600 - distanceBetween) and GetDistanceSqr(myHero, to) < GetDistanceSqr(target, to) then
+        if Game.CanUseSpell(3) == 0 then
             local items = checkItems()
                 
                 local ward = items[3340] or items[2049] or items[2301] or items[2302] or items[2303] or items[3711]
@@ -1550,7 +1549,6 @@ function GapClose(from, target, to, mode)
         local GapClosePos = Position + (Position - to):Normalized() * 600
         if mode == "Flash" then
             GapClosePos = Position + (Position - to):Normalized() * (distanceBetween)
-
             if Game.CanUseSpell(3) == 0 and GetDistanceSqr(GapClosePos, to) > GetDistanceSqr(target, to) and GetDistanceSqr(GapClosePos, Position) >= 80 * 80 and GetDistanceSqr(from, GapClosePos) < 400 * 400 and GetDistanceSqr(from, GapClosePos) > 400/2 * 400/2 then
                 --if myHero:GetSpellData(_Q).name == "BlindMonkQOne" and Game.CanUseSpell(0) == 0 then CastQ(target) end
                 CastSpell(flashcast, GapClosePos, 250)
@@ -1560,6 +1558,7 @@ function GapClose(from, target, to, mode)
             GapClosePos = Position + (Position - to):Normalized() * (distanceBetween)
             if  os.clock() - wardCasted > 3 and ward and myHero:GetSpellData(ward).currentCd == 0 and GetDistanceSqr(GapClosePos, to) > GetDistanceSqr(target, to) and GetDistanceSqr(GapClosePos, Position) >= 80 * 80 and GetDistanceSqr(GapClosePos, Position) < (375 - 75) * (375 - 75) and GetDistanceSqr(from, GapClosePos) < 600 * 600 then
                 CastSpell(HKITEM[ward], GapClosePos, Game.Latency())
+                
                 wardCasted = os.clock()
                 gp = GapClosePos
                 if Game.CanUseSpell(1) == 0 then
@@ -1581,8 +1580,9 @@ end
 
 checkItems = function()
 	local items = {}
-	for slot = ITEM_1,ITEM_6 do
+	for slot = ITEM_1,ITEM_7 do
         local id = myHero:GetItemData(slot).itemID
+
 		if id > 0 then
 			items[id] = slot
 		end
@@ -2098,7 +2098,7 @@ end
 Saga_Menu = 
 function()
 	Saga = MenuElement({type = MENU, id = "Lee Sin", name = "Saga's Lee Sin: Blind Bitch", icon = AIOIcon})
-	MenuElement({ id = "blank", type = SPACE ,name = "Version 1.1.7"})
+	MenuElement({ id = "blank", type = SPACE ,name = "Version 1.1.8"})
 	--Combo
 	Saga:MenuElement({id = "Combo", name = "Combo", type = MENU})
     Saga.Combo:MenuElement({id = "UseQ", name = "Q", value = true})

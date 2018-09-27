@@ -8,7 +8,7 @@ local ping = Latency() * .001
 local Q = { Range = 625}
 local W = { Range = 825, Delay = .60 + ping, Speed = 1400, Radius = 100}
 local E = { Range = 725, Delay = .75 + ping, Speed = 2000, Radius = 50}
-local R = { Range = 1000, Delay = .24 + ping , Speed = 2000, Radius = 160}
+local R = { Range = 1000, Delay = .25 + ping , Speed = 2000, Radius = 160}
 local atan2 = math.atan2
 local MathPI = math.pi
 local _movementHistory = {}
@@ -660,8 +660,7 @@ LocalCallbackAdd("Tick", function()
     if #_EnemyHeroes == 0 then return end
 
     if isEvading then return end
-    
-    UpdateMovementHistory()
+    --UpdateMovementHistory()
     
     Killsteal()
     
@@ -715,10 +714,13 @@ LocalCallbackAdd("Tick", function()
         local unit = GetTarget(E.Range)
         if unit and Game.CanUseSpell(2) == 0 and GetDistanceSqr(unit) < E.Range * E.Range then
             if GetOrbMode() == "" or GetOrbMode() == "Clear" then return end
-            local  aim = GetPred(unit,math.huge,0.25+ Game.Latency()/1000)
-                Espot = unit.pos + (myHero.pos - unit.pos): Normalized() * 875
-            
+            local  aim = GetPred(unit,6000,0.25+ Game.Latency()/1000)
+                Espot = myHero.pos
+                Espot2 = aim + (myHero.pos - aim): Normalized() * -50
+                if IsImmobileTarget(unit) or not unit.pathing.hasMovePath then
                 Espot2 = aim + (myHero.pos - aim): Normalized() * -150
+                end
+                
             if  Espot2 and Espot then
                 if myHero:GetSpellData(_E).toggleState == 1 then
                 Draw.Circle(Espot, 50, 4, Saga.Drawings.R.Color:Value())
@@ -1129,7 +1131,7 @@ function CastETarget(unit)
         
     if myHero.attackData.state ~= 2 and myHero:GetSpellData(_E).name == "IreliaE" then
         if  myHero:GetSpellData(_E).name == "IreliaE2" then  return end
-        Espot = myHero.pos + ( unit.pos - myHero.pos): Normalized() * - E.Range
+        Espot = myHero.pos
         Control.CastSpell(HK_E, Espot)
         spaceE = os.clock()
         
@@ -1138,11 +1140,14 @@ function CastETarget(unit)
     end
     
     end
-    aim = GetPred(unit,20000000,0.25+ Game.Latency()/1000)
+    aim = GetPred(unit,6000,0.25 + Game.Latency()/1000)
     if myHero.attackData.state ~= 2 and myHero:GetSpellData(_E).name == "IreliaE2" then
-        Espot2 = aim + (myHero.pos - aim): Normalized() * - 50
+        aim = aim + (myHero.pos - aim): Normalized() * -50
+        if IsImmobileTarget(unit) or not unit.pathing.hasMovePath then
+            aim = aim + (myHero.pos - aim): Normalized() * -150
+        end
         DisableMovement(true)
-        Control.CastSpell(HK_E, Espot2)
+        Control.CastSpell(HK_E, aim)
         DisableMovement(false)
         eStun = os.clock()
     --[[if myHero:GetSpellData(_E).name == "IreliaE2" then
@@ -1415,7 +1420,7 @@ end
 Saga_Menu = 
 function()
 	Saga = MenuElement({type = MENU, id = "Irelia", name = "Saga's Irelia: Please Don't Nerf Me", icon = AIOIcon})
-	MenuElement({ id = "blank", type = SPACE ,name = "Version 2.7.9"})
+	MenuElement({ id = "blank", type = SPACE ,name = "Version 2.8.0"})
 	--Combo
 	Saga:MenuElement({id = "Combo", name = "Combo", type = MENU})
     Saga.Combo:MenuElement({id = "UseQ", name = "Q", value = true})

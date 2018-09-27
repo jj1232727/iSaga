@@ -14,7 +14,7 @@ Data = {
         },
         Irelia = {
             Changelog = "E Fix",
-            Version = "2.7.9",
+            Version = "2.8.0",
         },
         
         Jinx = {
@@ -31,7 +31,7 @@ Data = {
         },
         LeeSin = {
             Changelog = "Lee ON Beta",
-            Version = "1.1.7",
+            Version = "1.1.8",
         },
         Orianna = {
             Changelog = "Orianna Auto Usage",
