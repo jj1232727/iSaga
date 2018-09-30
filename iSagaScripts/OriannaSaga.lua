@@ -1367,7 +1367,6 @@ if Saga.Drawings.Q.Enabled:Value() then Draw.Circle(myHero.pos, Q.Range, 0, Saga
 if Saga.Drawings.E.Enabled:Value() then Draw.Circle(myHero.pos, E.Range, 0, Saga.Drawings.E.Color:Value()) end
 
 
-print("Draw".. TotalHeroes)
 for i= 1, TotalHeroes do
 	local hero = _EnemyHeroes[i]
 	if hero then
