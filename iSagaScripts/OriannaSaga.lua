@@ -17,17 +17,16 @@ require "MapPosition"
 	local Rdamage = {150, 225, 300}
 	local Timer  = Game.Timer
 	--local ballOnMe = GotBuff(myHero, "orianaghostself") == 1 or false
-	
 	local sHero = Game.Hero
 	local TEAM_ALLY = myHero.team
 	local TEAM_ENEMY = 300 - TEAM_ALLY
 	local myCounter = 1
 	local killCounter = 0
 	local potCounter = 0
-	local _EnemyHeroes
+	local _EnemyHeroes = {}
 	local _AllyHero
-	local TotalHeroes
-	local TotalAHeroes
+	local TotalHeroes = 0
+	local TotalAHeroes = 0 
 	local dmgQ,dmgW,dmgE,dmgR
 	local AC = false
 	local LocalCallbackAdd = Callback.Add
@@ -171,12 +170,13 @@ require "MapPosition"
 	  LocalCallbackAdd(
     'Load',
 	function()
+		TotalHeroes = GetEnemyHeroes()
+		TotalAHeroes = GetAllyHeroes()
 		ballLoad()
 		Saga_Menu()
 		
-		TotalHeroes = GetEnemyHeroes()
-		TotalAHeroes = GetAllyHeroes()
-
+		
+		
 		if GotBuff(myHero, "ASSETS/Perks/Styles/Sorcery/ArcaneComet/ArcaneComet.lua") then
 			AC = true 
 		end
@@ -202,11 +202,13 @@ require "MapPosition"
     'Tick',
 	function()
 				
-				uBall()
+				
 				if Game.Timer() > Saga.Rate.champion:Value() and #_EnemyHeroes == 0 then
 					TotalHeroes = GetEnemyHeroes()
+					TotalAHeroes = GetAllyHeroes()
 				end
 				if #_EnemyHeroes == 0 then return end
+				uBall()
 				OnVisionF()
 				
 
@@ -505,11 +507,6 @@ findAlly = function(range)
 end
 
 GetEnemyHeroes = function()
-    if _EnemyHeroes then
-        return _EnemyHeroes
-	end
-	print("---Enemies Loaded---")
-	print("     Saga Script   ")
 	_EnemyHeroes = {}
     for i = 1, Game.HeroCount() do
         local unit = Game.Hero(i)
@@ -524,9 +521,6 @@ end
 
 
 GetAllyHeroes = function()
-    if _AllyHero then
-        return _AllyHero
-    end
 	_AllyHero = {}
     for i = 1, Game.HeroCount(i) do
         local unit = sHero(i)
@@ -1373,7 +1367,7 @@ if Saga.Drawings.Q.Enabled:Value() then Draw.Circle(myHero.pos, Q.Range, 0, Saga
 if Saga.Drawings.E.Enabled:Value() then Draw.Circle(myHero.pos, E.Range, 0, Saga.Drawings.E.Color:Value()) end
 
 
-
+print("Draw".. TotalHeroes)
 for i= 1, TotalHeroes do
 	local hero = _EnemyHeroes[i]
 	if hero then
@@ -1393,7 +1387,7 @@ end)
 Saga_Menu =
 function()
 	Saga = MenuElement({type = MENU, id = "Orianna", name = "Saga's Orianna: Balls of Fury", icon = AIOIcon})
-	MenuElement({ id = "blank", type = SPACE ,name = "Version 3.2.2"})
+	MenuElement({ id = "blank", type = SPACE ,name = "Version 3.3.0"})
 	--Combo
 	Saga:MenuElement({id = "Combo", name = "Combo", type = MENU})
 	Saga.Combo:MenuElement({id = "UseQ", name = "Q", value = true})
