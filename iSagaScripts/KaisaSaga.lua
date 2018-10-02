@@ -721,7 +721,7 @@ function LaneClear()
         for i = SagaMCount(), 1, -1 do 
             local minion = SagasBitch(i)
             if minion.isTargetable and minion.team == TEAM_ENEMY and minion.dead == false then
-                if Game.CanUseSpell(0) == 0 and minion.DistanceTo() < Q.Range and not Saga.Clear.UseQ2 then
+                if Game.CanUseSpell(0) == 0 and minion.pos:DistanceTo() < Q.Range and not Saga.Clear.UseQ2 then
                     Control.CastSpell(HK_Q)
                 end
             end
@@ -795,7 +795,7 @@ SIGroup = function(target)
 end
 
     Saga = MenuElement({type = MENU, id = "Kaisa", name = "Kaisa - Plasma Hentai Instead of Tencticles", icon = AIOIcon})
-	MenuElement({ id = "blank", type = SPACE ,name = "BETA Version 1.0.3"})
+	MenuElement({ id = "blank", type = SPACE ,name = "BETA Version 1.0.4"})
     
     Saga:MenuElement({id = "Combo", name = "Combo", type = MENU})
     Saga.Combo:MenuElement({id = "UseQ", name = "Q", value = true})
