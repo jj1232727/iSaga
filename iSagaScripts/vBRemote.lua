@@ -56,6 +56,10 @@ Data = {
             Changelog = "New Talon Combo",
             Version = "1.2.3",
         },
+		Urgot = {
+            Changelog = "Release Beta Urgot",
+            Version = "BETA 1.0.0",
+        },
         Viktor = {
             Changelog = "E Pred",
             Version = "2.6.4",
