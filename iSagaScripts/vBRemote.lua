@@ -26,7 +26,7 @@ Data = {
         },
         Kaisa = {
             Changelog = "Created Menu and Added Features",
-            Version = "BETA 1.0.4",
+            Version = "BETA 1.0.5",
         },
         Karthus = {
             Changelog = "E Fix",

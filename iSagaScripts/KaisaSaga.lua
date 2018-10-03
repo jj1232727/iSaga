@@ -717,7 +717,8 @@ function Harass()
 end
 
 function LaneClear()
-    if not Saga.Clear.UseQ2:Value() then
+    local target = GetTarget(2000)
+    if not Saga.Clear.UseQ:Value() then
         for i = SagaMCount(), 1, -1 do 
             local minion = SagasBitch(i)
             if minion.isTargetable and minion.team == TEAM_ENEMY and minion.dead == false then
@@ -727,28 +728,30 @@ function LaneClear()
             end
         end
     end
-    if Saga.Clear.UseQ2:Value() then
-        target = GetTarget(Q.Range)
-        if validTarget(target) then
-        
-            if kaisa.pos:DistanceTo(target.pos) <= Q.Range and ItsReadyDumbAss(0) == 0 then
-                CastItDumbFuk(HK_Q)
+    if target then 
+        if Saga.Clear.UseQ2:Value() then
+            target = GetTarget(Q.Range)
+            if validTarget(target) then
+            
+                if kaisa.pos:DistanceTo(target.pos) <= Q.Range and ItsReadyDumbAss(0) == 0 then
+                    CastItDumbFuk(HK_Q)
+                end
             end
         end
-    end
 
-    if Saga.Clear.UseW:Value() then
-        local target2 = GetTarget(Q.Range)
-        if validTarget(target2) then 
-            if Saga.Clear.UseW:Value() and kaisa.pos:DistanceTo(target2.pos) <= W.Range and Game.CanUseSpell(1) == 0  then
-            --local t, aim = GetHitchance(kaisa.pos, target2 , W.Range, W.Delay, W.Speed, W.Width)
-                local aim = GetPred(target2,math.huge,0.25 + Game.Latency()/1000)
-                if aim and minionCollision(target2, kaisa.pos, aim)  == 0 then
-                    if aim:To2D().onScreen then
-                        if SagaOrb == 4 then
-                            CastItDumbFuk(HK_W, aim)
-                        else
-                            CastSpell(HK_W, aim, W.Range, W.Delay * 1000)
+        if Saga.Clear.UseW:Value() then
+            local target2 = GetTarget(Q.Range)
+            if validTarget(target2) then 
+                if Saga.Clear.UseW:Value() and kaisa.pos:DistanceTo(target2.pos) <= W.Range and Game.CanUseSpell(1) == 0  then
+                --local t, aim = GetHitchance(kaisa.pos, target2 , W.Range, W.Delay, W.Speed, W.Width)
+                    local aim = GetPred(target2,math.huge,0.25 + Game.Latency()/1000)
+                    if aim and minionCollision(target2, kaisa.pos, aim)  == 0 then
+                        if aim:To2D().onScreen then
+                            if SagaOrb == 4 then
+                                CastItDumbFuk(HK_W, aim)
+                            else
+                                CastSpell(HK_W, aim, W.Range, W.Delay * 1000)
+                            end
                         end
                     end
                 end
@@ -795,7 +798,7 @@ SIGroup = function(target)
 end
 
     Saga = MenuElement({type = MENU, id = "Kaisa", name = "Kaisa - Plasma Hentai Instead of Tencticles", icon = AIOIcon})
-	MenuElement({ id = "blank", type = SPACE ,name = "BETA Version 1.0.4"})
+	MenuElement({ id = "blank", type = SPACE ,name = "BETA Version 1.0.5"})
     
     Saga:MenuElement({id = "Combo", name = "Combo", type = MENU})
     Saga.Combo:MenuElement({id = "UseQ", name = "Q", value = true})
