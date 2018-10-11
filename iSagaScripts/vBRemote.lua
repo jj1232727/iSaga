@@ -48,6 +48,10 @@ Data = {
             Changelog = "Orianna Auto Usage",
             Version = "3.3.0",
         },
+		Rakan = {
+            Changelog = "Rakan Release",
+            Version = "1.0.0",
+        },
         Syndra = {
             Changelog = "Prediction Tweaks",
             Version = "3.2.1",
